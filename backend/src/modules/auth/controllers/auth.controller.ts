@@ -1,7 +1,8 @@
 import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { AuthLoginInput, AuthRegisterInput } from '../inputs/auth.input';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
+import type { UserAgentRequest } from 'src/shared/http/user-agent-request';
 
 @Controller('auth')
 export class AuthController {
@@ -15,11 +16,21 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() body: AuthLoginInput,
-    @Req() req: Request,
+    @Req() req: UserAgentRequest,
     @Res() res: Response,
   ) {
     const ip = req.ip || 'unknown';
     const device = req.headers['user-agent'] || 'unknown';
+    const ua = req.useragent || {
+      browser: 'unknown',
+      version: 'unknown',
+      os: 'unknown',
+      platform: 'unknown',
+      source: 'unknown',
+      isMobile: false,
+      isDesktop: false,
+    };
+    Logger.log(ua);
     const result = await this.service.login(body, ip, device);
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
@@ -31,6 +42,7 @@ export class AuthController {
 
     return res.send({
       accessToken: result.accessToken,
+      role: result.role,
       sessionId: result.sessionId,
     });
   }

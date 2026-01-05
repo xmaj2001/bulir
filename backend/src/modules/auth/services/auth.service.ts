@@ -85,7 +85,7 @@ export class AuthService {
       device,
       tokens.refreshToken,
     );
-    return { ...tokens, sessionId: session.id };
+    return { ...tokens, sessionId: session.id, role: existUser.role };
   }
 
   private generateTokens(user: UserEntity) {
