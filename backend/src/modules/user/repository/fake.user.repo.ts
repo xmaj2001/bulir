@@ -7,8 +7,8 @@ export default class FakeUserRepository implements UserRepository {
   private users: UserEntity[] = [
     new UserEntity({
       id: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
+      name: 'Max Mustermann',
+      email: 'max@x.com',
       nif: '123456789',
       role: UserRole.CLIENT,
       balance: 100,
@@ -17,8 +17,8 @@ export default class FakeUserRepository implements UserRepository {
     }),
     new UserEntity({
       id: '2',
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
+      name: 'Lucas Schmidt',
+      email: 'lucas@x.com',
       nif: '987654321',
       role: UserRole.PROVIDER,
       balance: 200,

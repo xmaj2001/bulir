@@ -8,10 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { AuthGuard } from 'src/shared/guard/auth.guard';
-import { Roles } from 'src/shared/decorator/roles.decorator';
+import { AuthGuard } from '../../../shared/guard/auth.guard';
+import { Roles } from '../../../shared/decorator/roles.decorator';
 import { UserRole } from '../entities/user.entity';
-import { RolesGuard } from 'src/shared/guard/roles.guard';
+import { RolesGuard } from '../../../shared/guard/roles.guard';
 
 @Controller('users')
 export class UserController {

@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import SessionRepository from '../repository/session.repo';
-import UserRepository from 'src/modules/user/repository/user.repo';
+import UserRepository from '../../user/repository/user.repo';
 import { AuthLoginInput, AuthRegisterInput } from '../inputs/auth.input';
-import { PasswordHasher } from 'src/adapters/hasher/password-hasher.port';
-import UserEntity, { UserRole } from 'src/modules/user/entities/user.entity';
+import { PasswordHasher } from '../../../adapters/hasher/password-hasher.port';
+import UserEntity, { UserRole } from '../../user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import SessionEntity from '../entities/session.entity';
@@ -91,11 +91,11 @@ export class AuthService {
   private generateTokens(user: UserEntity) {
     const payload = { sub: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
       expiresIn: '15m',
     });
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
+      secret: process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
       expiresIn: '7d',
     });
     return { accessToken, refreshToken };
