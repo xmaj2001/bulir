@@ -26,7 +26,7 @@ export class UserService {
   }
 
   async findByNif(nif: string) {
-    const result = await this.repo.findbyNif(nif);
+    const result = await this.repo.findByNif(nif);
     if (!result) {
       throw new NotFoundException(
         `O usuário com NIF ${nif} não foi encontrado`,

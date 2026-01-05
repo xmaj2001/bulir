@@ -27,6 +27,12 @@ export default class FakeUserRepository implements UserRepository {
     } as UserEntity,
   ];
 
+  async create(user: UserEntity) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    this.users.push(user);
+    return user;
+  }
+
   async findAll() {
     await new Promise((resolve) => setTimeout(resolve, 100));
     return this.users;
@@ -37,7 +43,7 @@ export default class FakeUserRepository implements UserRepository {
     return this.users.find((user) => user.id === id) ?? null;
   }
 
-  async findbyNif(nif: string) {
+  async findByNif(nif: string) {
     await new Promise((resolve) => setTimeout(resolve, 100));
     return this.users.find((user) => user.nif === nif) ?? null;
   }
