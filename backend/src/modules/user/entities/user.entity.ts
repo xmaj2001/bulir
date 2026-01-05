@@ -14,6 +14,12 @@ export default class UserEntity {
   public createdAt: Date;
   public updatedAt: Date;
 
+  constructor(partial?: Partial<UserEntity>) {
+    this.balance = 0;
+    this.password = 'hashed-123456';
+    Object.assign(this, partial);
+  }
+
   public setPassword(password: string) {
     this.password = password;
   }

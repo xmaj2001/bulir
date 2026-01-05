@@ -13,5 +13,6 @@ import FakeUserRepository from './repository/fake.user.repo';
       useClass: FakeUserRepository,
     },
   ],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}

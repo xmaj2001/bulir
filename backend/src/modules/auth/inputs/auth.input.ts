@@ -3,7 +3,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsString,
-  Min,
+  MinLength,
   ValidateIf,
 } from 'class-validator';
 
@@ -21,7 +21,7 @@ export class AuthLoginInput {
 
   @IsNotEmpty({ message: 'A senha não pode estar vazia.' })
   @IsString({ message: 'A senha deve ser uma string.' })
-  @Min(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
+  @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
   public password: string;
 }
 
@@ -41,7 +41,7 @@ export class AuthRegisterInput {
 
   @IsNotEmpty({ message: 'A senha não pode estar vazia.' })
   @IsString({ message: 'A senha deve ser uma string.' })
-  @Min(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
+  @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
   public password: string;
 
   @IsEnum(['client', 'provider'], {

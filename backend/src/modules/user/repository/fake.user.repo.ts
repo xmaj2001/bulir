@@ -5,7 +5,7 @@ import UserEntity, { UserRole } from '../entities/user.entity';
 @Injectable()
 export default class FakeUserRepository implements UserRepository {
   private users: UserEntity[] = [
-    {
+    new UserEntity({
       id: '1',
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -14,8 +14,8 @@ export default class FakeUserRepository implements UserRepository {
       balance: 100,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as UserEntity,
-    {
+    }),
+    new UserEntity({
       id: '2',
       name: 'Jane Smith',
       email: 'jane.smith@example.com',
@@ -24,7 +24,7 @@ export default class FakeUserRepository implements UserRepository {
       balance: 200,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as UserEntity,
+    }),
   ];
 
   async create(user: UserEntity) {

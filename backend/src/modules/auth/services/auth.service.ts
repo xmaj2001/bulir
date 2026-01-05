@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import SessionRepository from '../repository/session.repo';
@@ -11,7 +12,7 @@ import { PasswordHasher } from 'src/adapters/hasher/password-hasher.port';
 import UserEntity, { UserRole } from 'src/modules/user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-
+import SessionEntity from '../entities/session.entity';
 @Injectable()
 export class AuthService {
   constructor(
@@ -50,7 +51,7 @@ export class AuthService {
     return createdUser;
   }
 
-  async login(input: AuthLoginInput) {
+  async login(input: AuthLoginInput, ip: string, device: string) {
     if (!input.email && !input.nif) {
       throw new BadRequestException(
         `É necessário fornecer email ou NIF para login`,
@@ -77,7 +78,60 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException(`Credenciais inválidas`);
     }
+    const tokens = this.generateTokens(existUser);
+    const session = await this.handleSession(
+      existUser,
+      ip,
+      device,
+      tokens.refreshToken,
+    );
+    return { ...tokens, sessionId: session.id };
+  }
 
-    return existUser;
+  private generateTokens(user: UserEntity) {
+    const payload = { sub: user.id, role: user.role };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '15m',
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '7d',
+    });
+    return { accessToken, refreshToken };
+  }
+
+  private async handleSession(
+    user: UserEntity,
+    ip: string,
+    device: string,
+    refreshTokenHash: string,
+  ) {
+    const activeSession = await this.session.getActiveForDevice(
+      user.id,
+      device,
+    );
+    if (activeSession) {
+      Logger.log(
+        `Sessão ativa encontrada para o usuário ${user.id} no dispositivo ${device}`,
+      );
+      return activeSession;
+    }
+
+    const latestSession = await this.session.getLatest(user.id);
+    if (latestSession) {
+      Logger.warn(`Revogando sessão antiga do usuário ${user.id}`);
+      await this.session.revoke(latestSession.id);
+    }
+
+    const newSession = new SessionEntity({
+      id: randomUUID(),
+      userId: user.id,
+      ip,
+      device,
+      refreshTokenHash,
+      createdAt: new Date(),
+    });
+    return this.session.create(newSession);
   }
 }
