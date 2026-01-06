@@ -32,7 +32,7 @@ describe('UserService', () => {
   it('Deve encontrar um usuário pelo ID', async () => {
     const user = await service.findById('1');
     expect(user).toBeDefined();
-    expect(user.name).toBe('John Doe');
+    expect(user.name).toBe('Max Mustermann');
   });
 
   it('Deve lançar NotFoundException ao buscar usuário por ID inexistente', async () => {
@@ -54,9 +54,9 @@ describe('UserService', () => {
   });
 
   it('Deve encontrar um usuário pelo email', async () => {
-    const user = await service.findByEmail('john.doe@example.com');
+    const user = await service.findByEmail('max@x.com');
     expect(user).toBeDefined();
-    expect(user.email).toBe('john.doe@example.com');
+    expect(user.email).toBe('max@x.com');
   });
 
   it('Deve lançar NotFoundException ao buscar usuário por email inexistente', async () => {

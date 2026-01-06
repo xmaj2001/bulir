@@ -5,6 +5,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ServiceModule } from './modules/service/service.module';
+import { ReservationModule } from './modules/reservation/reservation.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ServiceModule } from './modules/service/service.module';
       signOptions: { expiresIn: '1h' },
     }),
     ServiceModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

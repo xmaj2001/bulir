@@ -71,4 +71,18 @@ export default class FakeUserRepository implements UserRepository {
     user.updatedAt = new Date();
     return user;
   }
+
+  async debitBalance(
+    userId: string,
+    amount: number,
+  ): Promise<UserEntity | null> {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const user = this.users.find((user) => user.id === userId);
+    if (!user) {
+      return null;
+    }
+    user.balance = amount;
+    user.updatedAt = new Date();
+    return user;
+  }
 }
