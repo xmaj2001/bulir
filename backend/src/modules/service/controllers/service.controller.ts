@@ -9,10 +9,10 @@ import {
 } from '@nestjs/common';
 import { ServiceService } from '../services/service.service';
 import { CreateServiceInput } from '../inputs/create-service';
-import { AuthGuard } from 'src/shared/guard/auth.guard';
-import { RolesGuard } from 'src/shared/guard/roles.guard';
-import { Roles } from 'src/shared/decorator/roles.decorator';
-import { UserRole } from 'src/modules/user/entities/user.entity';
+import { AuthGuard } from '../../../shared/guard/auth.guard';
+import { RolesGuard } from '../../../shared/guard/roles.guard';
+import { Roles } from '../../../shared/decorator/roles.decorator';
+import { UserRole } from '../../user/entities/user.entity';
 import { UpdateServiceInput } from '../inputs/upadate-service';
 
 @Controller('services')

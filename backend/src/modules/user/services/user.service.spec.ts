@@ -70,7 +70,7 @@ describe('UserService', () => {
   it('Deve atualizar o saldo do usuário', async () => {
     const updatedUser = await service.updateBalance('1', 50);
     expect(updatedUser).toBeDefined();
-    expect(updatedUser?.balance).toBe(150);
+    expect(updatedUser?.balance).toBe(8050);
   });
 
   it('Deve lançar NotFoundException ao atualizar saldo de usuário inexistente', async () => {

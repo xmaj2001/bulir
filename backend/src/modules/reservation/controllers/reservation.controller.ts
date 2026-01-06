@@ -12,9 +12,9 @@ import { ReservationService } from '../services/reservation.service';
 import { CreateReservationInput } from '../inputs/create-reservation';
 import { AuthGuard } from '../../../shared/guard/auth.guard';
 import type { RequestWithUser } from 'src/shared/http/user-request';
-import { RolesGuard } from 'src/shared/guard/roles.guard';
-import { Roles } from 'src/shared/decorator/roles.decorator';
-import { UserRole } from 'src/modules/user/entities/user.entity';
+import { RolesGuard } from '../../../shared/guard/roles.guard';
+import { Roles } from '../../../shared/decorator/roles.decorator';
+import { UserRole } from '../../user/entities/user.entity';
 
 @Controller('reservations')
 export class ReservationController {

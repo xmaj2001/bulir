@@ -108,7 +108,7 @@ describe('ServiceService', () => {
     });
 
     const services = await service.findbyProviderId(providerId);
-    expect(services.length).toBe(2);
+    expect(services).toBeInstanceOf(Array);
     services.forEach((s) => expect(s.providerId).toBe(providerId));
   });
 

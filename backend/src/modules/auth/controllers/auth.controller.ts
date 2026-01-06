@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { AuthLoginInput, AuthRegisterInput } from '../inputs/auth.input';
 import type { Response } from 'express';
