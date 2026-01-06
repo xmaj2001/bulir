@@ -1,9 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ServiceService } from './services/service.service';
-import { ServiceController } from './service.controller';
+import { ServiceController } from './controllers/service.controller';
+import ServiceRepository from './repository/service.repo';
+import FakeServiceRepository from './repository/fake.service.repo';
+import { UserModule } from '../user/user.module';
 
 @Module({
   controllers: [ServiceController],
-  providers: [ServiceService],
+  providers: [
+    ServiceService,
+    {
+      provide: ServiceRepository,
+      useClass: FakeServiceRepository,
+    },
+  ],
+  imports: [UserModule],
 })
 export class ServiceModule {}
