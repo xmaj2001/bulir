@@ -42,7 +42,6 @@ export class AuthController {
 
     return res.send({
       accessToken: result.accessToken,
-      role: result.role,
       sessionId: result.sessionId,
     });
   }
