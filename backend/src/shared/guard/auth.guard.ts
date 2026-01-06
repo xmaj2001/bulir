@@ -22,7 +22,9 @@ export class AuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('Token não fornecido');
 
     try {
-      const payload: any = await this.jwt.verifyAsync(token);
+      const payload: any = await this.jwt.verifyAsync(token, {
+        secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
+      });
 
       // const session = await this.session.findById(payload.sessionId);
 
@@ -31,7 +33,7 @@ export class AuthGuard implements CanActivate {
 
       (request as any).user = payload;
       return true;
-    } catch (error) {
+    } catch (error: any) {
       throw new UnauthorizedException('Token inválido ou expirado');
     }
   }

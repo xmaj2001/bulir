@@ -30,7 +30,7 @@ export class AuthController {
       isMobile: false,
       isDesktop: false,
     };
-    Logger.log(ua);
+    // Logger.log(ua);
     const result = await this.service.login(body, ip, device);
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,

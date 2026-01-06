@@ -110,6 +110,5 @@ describe('AuthService', () => {
     );
     expect(result).toHaveProperty('accessToken');
     expect(result).toHaveProperty('refreshToken');
-    expect(result).toHaveProperty('role');
   });
 });

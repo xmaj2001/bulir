@@ -15,7 +15,7 @@ import { Roles } from 'src/shared/decorator/roles.decorator';
 import { UserRole } from 'src/modules/user/entities/user.entity';
 import { UpdateServiceInput } from '../inputs/upadate-service';
 
-@Controller('service')
+@Controller('services')
 export class ServiceController {
   constructor(private readonly service: ServiceService) {}
 
