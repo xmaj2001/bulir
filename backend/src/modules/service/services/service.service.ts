@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import ServiceRepository from '../repository/service.repo';
 import { CreateServiceInput } from '../inputs/create-service';
-import UserRepository from 'src/modules/user/repository/user.repo';
+import UserRepository from '../../user/repository/user.repo';
 import ServiceEntity from '../entities/service.entity';
 import { UpdateServiceInput } from '../inputs/upadate-service';
 
