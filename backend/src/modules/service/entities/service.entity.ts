@@ -14,8 +14,9 @@ export default class ServiceEntity {
     description: string,
     price: number,
     providerId: string,
+    id?: string,
   ) {
-    this.id = randomUUID();
+    this.id = id ?? randomUUID();
     this.name = name;
     this.description = description;
     this.price = price;

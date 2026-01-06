@@ -4,7 +4,29 @@ import ServiceEntity from '../entities/service.entity';
 
 @Injectable()
 export default class FakeServiceRepository implements ServiceRepository {
-  private services: ServiceEntity[] = [];
+  private services: ServiceEntity[] = [
+    new ServiceEntity(
+      'Corte de Cabelo',
+      'Corte de cabelo profissional',
+      500,
+      '1',
+      '1',
+    ),
+    new ServiceEntity(
+      'Manicure',
+      'Serviço de manicure completo',
+      14000,
+      '2',
+      '2',
+    ),
+    new ServiceEntity(
+      'Massagem Relaxante',
+      'Massagem para relaxamento muscular',
+      8000,
+      '3',
+      '3',
+    ),
+  ];
 
   async create(service: ServiceEntity): Promise<ServiceEntity> {
     await Promise.resolve();

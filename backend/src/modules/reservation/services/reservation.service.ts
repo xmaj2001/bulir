@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import ReservationRepository from '../repository/reservation.repo';
-import ServiceRepository from 'src/modules/service/repository/service.repo';
-import UserRepository from 'src/modules/user/repository/user.repo';
+import ServiceRepository from '../../service/repository/service.repo';
+import UserRepository from '../../user/repository/user.repo';
 import ReservationEntity, {
   ReservationStatus,
 } from '../entities/reservation.entity';
@@ -48,11 +48,31 @@ export class ReservationService {
     return createdReservation;
   }
 
+  async findById(id: string) {
+    const reservation = await this.repo.findById(id);
+    if (!reservation) throw new NotFoundException('Reserva não encontrada');
+    return reservation;
+  }
+
+  async findByClientId(clientId: string) {
+    const exitClient = await this.userRepo.findById(clientId);
+    if (!exitClient) throw new NotFoundException('Cliente não encontrado');
+
+    const reservations = await this.repo.findByClientId(clientId);
+    return reservations;
+  }
+
   async cancel(reservationId: string, userId: string) {
     const reservation = await this.repo.findById(reservationId);
     if (!reservation) throw new NotFoundException('Reserva não encontrada');
 
-    if (reservation.clientId !== userId && reservation.providerId !== userId) {
+    const exitClient = await this.userRepo.findById(userId);
+    if (!exitClient) throw new NotFoundException('Usuário não encontrado');
+
+    if (
+      reservation.clientId !== exitClient.id &&
+      reservation.providerId !== exitClient.id
+    ) {
       throw new UnauthorizedException(
         'Não tens permissão para cancelar esta reserva',
       );
