@@ -24,6 +24,7 @@ export default class UserEntity {
     this.balance = 0;
     this.password = 'hashed-123456';
     this.status = UserAcountStatus.ACTIVE;
+    this.role = UserRole.CLIENT;
     Object.assign(this, partial);
   }
 

@@ -3,6 +3,7 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import UserRepository from './repository/user.repo';
 import FakeUserRepository from './repository/fake.user.repo';
+import PrismaUserRepository from '../auth/repository/prisma/prisma.user.repo';
 
 @Module({
   controllers: [UserController],
@@ -10,7 +11,8 @@ import FakeUserRepository from './repository/fake.user.repo';
     UserService,
     {
       provide: UserRepository,
-      useClass: FakeUserRepository,
+      // useClass: FakeUserRepository,
+      useClass: PrismaUserRepository,
     },
   ],
   exports: [UserService, UserRepository],

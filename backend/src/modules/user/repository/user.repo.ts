@@ -1,7 +1,7 @@
 import UserEntity from '../entities/user.entity';
 
 export default abstract class UserRepository {
-  abstract create(user: UserEntity, tx?: any): Promise<UserEntity>;
+  abstract create(user: UserEntity): Promise<UserEntity>;
   abstract findByEmail(email: string): Promise<UserEntity | null>;
   abstract findById(id: string, tx?: any): Promise<UserEntity | null>;
   abstract findByNif(nif: string): Promise<UserEntity | null>;
@@ -10,7 +10,7 @@ export default abstract class UserRepository {
     amount: number,
     tx?: any,
   ): Promise<UserEntity | null>;
-  abstract update(user: UserEntity, tx?: any): Promise<UserEntity>;
+  abstract update(user: UserEntity): Promise<UserEntity>;
   abstract debitBalance(
     userId: string,
     amount: number,

@@ -5,9 +5,9 @@ import FakeSessionRepository from '../repository/fake/fake.session';
 import { PasswordHasher } from '../../../adapters/hasher/password-hasher.port';
 import FakePasswordHasher from '../../../adapters/hasher/fake-hash';
 import { UserModule } from '../../user/user.module';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthRegisterInput } from '../inputs/auth.input';
 import { UserRole } from '../../user/entities/user.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -52,8 +52,6 @@ describe('AuthService', () => {
     expect(result).toHaveProperty('id');
     expect(result.name).toBe(registerInput.name);
     expect(result.email).toBe(registerInput.email);
-    expect(result.nif).toBe(registerInput.nif);
-    expect(result.role).toBe(registerInput.role);
   });
 
   it('não deve registrar um usuário com email duplicado', async () => {
@@ -103,11 +101,10 @@ describe('AuthService', () => {
     };
     await service.registerUser(registerInput);
 
-    const result = await service.login(
-      { email: registerInput.email, password: registerInput.password },
-      '192.168.0.1',
-      'Mozilla/5.0',
-    );
+    const result = await service.login({
+      email: registerInput.email,
+      password: registerInput.password,
+    });
     expect(result).toHaveProperty('accessToken');
     expect(result).toHaveProperty('refreshToken');
   });

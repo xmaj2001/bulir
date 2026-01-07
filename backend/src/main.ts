@@ -1,17 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: '*' });
-  app.use(cookieParser());
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      // Isso é importante para mostrar os fields e mensagens
       exceptionFactory: (errors) => {
         const formattedErrors = errors.map((error) => ({
           field: error.property,
@@ -24,8 +27,16 @@ async function bootstrap() {
       },
     }),
   );
-  const PORT = process.env.PORT || 5000;
-  await app.listen(PORT);
-  Logger.log(`Server is running on port ${PORT}`);
+  const config = new DocumentBuilder()
+    .setTitle('minidiz')
+    .setDescription('The minidiz API')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('doc', app, documentFactory);
+  await app.listen(process.env.PORT ?? 5000);
+  console.log(
+    `Application is running on: http://localhost:${process.env.PORT ?? 5000}`,
+  );
 }
 bootstrap();
