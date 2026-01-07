@@ -1,11 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import OtpEntity, { OtpPurpose } from '../entities/otp.entity';
 import OtpRepository from '../repository/otp.repo';
+import { MailSender } from '../../../adapters/mail/mail-sender.port';
+import UserRepository from '../../../modules/user/repository/user.repo';
 
 @Injectable()
 export class OtpService {
-  constructor(private readonly otpRepo: OtpRepository) {}
+  constructor(
+    private readonly otpRepo: OtpRepository,
+    private readonly mailSend: MailSender,
+    private readonly userRepo: UserRepository,
+  ) {}
 
   async generate(userId: string, purpose: OtpPurpose): Promise<OtpEntity> {
     const otp = new OtpEntity({
@@ -34,6 +40,16 @@ export class OtpService {
     }
 
     await this.otpRepo.markAsUsed(otp.id);
+    return otp;
+  }
+
+  async sendOtp(userId: string, purpose: OtpPurpose): Promise<OtpEntity> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    const otp = await this.generate(user.id, purpose);
+    await this.mailSend.sendOtp(user.email, otp.code);
     return otp;
   }
 

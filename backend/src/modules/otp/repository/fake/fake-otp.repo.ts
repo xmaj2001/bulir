@@ -1,6 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import OtpEntity, { OtpPurpose } from '../../entities/otp.entity';
 import OtpRepository from '../otp.repo';
 
+@Injectable()
 export default class FakeOtpRepository implements OtpRepository {
   private otps: OtpEntity[] = [];
 

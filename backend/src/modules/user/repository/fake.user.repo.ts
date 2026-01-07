@@ -8,7 +8,7 @@ export default class FakeUserRepository implements UserRepository {
     new UserEntity({
       id: '1',
       name: 'Max Mustermann',
-      email: 'max@x.com',
+      email: 'xma.jose2001@gmail.com',
       nif: '123456789',
       role: UserRole.CLIENT,
       balance: 8000,
