@@ -68,6 +68,16 @@ export default class FakeUserRepository implements UserRepository {
     this.users = this.users.filter((user) => user.id !== id);
   }
 
+  async update(user: UserEntity): Promise<UserEntity> {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const index = this.users.findIndex((u) => u.id === user.id);
+    if (index === -1) {
+      throw new Error('User not found');
+    }
+    this.users[index] = user;
+    return user;
+  }
+
   async updateBalance(
     userId: string,
     amount: number,

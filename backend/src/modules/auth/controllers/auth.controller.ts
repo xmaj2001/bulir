@@ -1,9 +1,21 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { AuthLoginInput, AuthRegisterInput } from '../inputs/auth.input';
+import {
+  AuthChangePasswordInput,
+  AuthLoginInput,
+  AuthRegisterInput,
+} from '../inputs/auth.input';
 import type { Response } from 'express';
-import type { UserAgentRequest } from 'src/shared/http/user-agent-request';
-
+import type { RequestWithUser } from 'src/shared/http/user-request';
+import { AuthGuard } from 'src/shared/guard/auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}
@@ -14,24 +26,8 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(
-    @Body() body: AuthLoginInput,
-    @Req() req: UserAgentRequest,
-    @Res() res: Response,
-  ) {
-    const ip = req.ip || 'unknown';
-    const device = req.headers['user-agent'] || 'unknown';
-    const ua = req.useragent || {
-      browser: 'unknown',
-      version: 'unknown',
-      os: 'unknown',
-      platform: 'unknown',
-      source: 'unknown',
-      isMobile: false,
-      isDesktop: false,
-    };
-    // Logger.log(ua);
-    const result = await this.service.login(body, ip, device);
+  async login(@Body() body: AuthLoginInput, @Res() res: Response) {
+    const result = await this.service.login(body);
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -42,7 +38,28 @@ export class AuthController {
 
     return res.send({
       accessToken: result.accessToken,
-      sessionId: result.sessionId,
     });
+  }
+
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  logout(@Res() res: Response) {
+    res.clearCookie('refreshToken', {
+      path: '/auth/refresh-token',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+    return res.status(200).json({ message: 'Logout successful' });
+  }
+
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  changePassword(
+    @Body() body: AuthChangePasswordInput,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user?.sub || '';
+    return this.service.changePassword(userId, body);
   }
 }

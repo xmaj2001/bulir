@@ -2,21 +2,21 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import SessionRepository from '../repository/session.repo';
 import UserRepository from '../../user/repository/user.repo';
-import { AuthLoginInput, AuthRegisterInput } from '../inputs/auth.input';
+import {
+  AuthChangePasswordInput,
+  AuthLoginInput,
+  AuthRegisterInput,
+} from '../inputs/auth.input';
 import { PasswordHasher } from '../../../adapters/hasher/password-hasher.port';
 import UserEntity, { UserRole } from '../../user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import SessionEntity from '../entities/session.entity';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly session: SessionRepository,
     private readonly user: UserRepository,
     private readonly hashPassword: PasswordHasher,
     private readonly jwtService: JwtService,
@@ -48,10 +48,15 @@ export class AuthService {
 
     const createdUser = await this.user.create(newUser);
 
-    return createdUser;
+    return {
+      id: createdUser.id,
+      name: createdUser.name,
+      email: createdUser.email,
+      type: createdUser.role,
+    };
   }
 
-  async login(input: AuthLoginInput, ip: string, device: string) {
+  async login(input: AuthLoginInput) {
     if (!input.email && !input.nif) {
       throw new BadRequestException(
         `É necessário fornecer email ou NIF para login`,
@@ -79,13 +84,31 @@ export class AuthService {
       throw new UnauthorizedException(`Credenciais inválidas`);
     }
     const tokens = this.generateTokens(existUser);
-    const session = await this.handleSession(
-      existUser,
-      ip,
-      device,
-      tokens.refreshToken,
+    return { ...tokens };
+  }
+
+  async changePassword(userId: string, input: AuthChangePasswordInput) {
+    const existUser = await this.user.findById(userId);
+    if (!existUser) {
+      throw new UnauthorizedException(`Usuário não encontrado`);
+    }
+
+    const isOldPasswordValid = await this.hashPassword.compare(
+      input.oldPassword,
+      existUser.getPassword(),
     );
-    return { ...tokens, sessionId: session.id };
+
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException(`Senha antiga inválida`);
+    }
+
+    const newPasswordHash = await this.hashPassword.hash(input.newPassword);
+    existUser.setPassword(newPasswordHash);
+    existUser.updatedAt = new Date();
+
+    await this.user.update(existUser);
+
+    return { message: 'Senha alterada com sucesso' };
   }
 
   private generateTokens(user: UserEntity) {
@@ -99,39 +122,5 @@ export class AuthService {
       expiresIn: '7d',
     });
     return { accessToken, refreshToken };
-  }
-
-  private async handleSession(
-    user: UserEntity,
-    ip: string,
-    device: string,
-    refreshTokenHash: string,
-  ) {
-    const activeSession = await this.session.getActiveForDevice(
-      user.id,
-      device,
-    );
-    if (activeSession) {
-      Logger.log(
-        `Sessão ativa encontrada para o usuário ${user.id} no dispositivo ${device}`,
-      );
-      return activeSession;
-    }
-
-    const latestSession = await this.session.getLatest(user.id);
-    if (latestSession) {
-      Logger.warn(`Revogando sessão antiga do usuário ${user.id}`);
-      await this.session.revoke(latestSession.id);
-    }
-
-    const newSession = new SessionEntity({
-      id: randomUUID(),
-      userId: user.id,
-      ip,
-      device,
-      refreshTokenHash,
-      createdAt: new Date(),
-    });
-    return this.session.create(newSession);
   }
 }

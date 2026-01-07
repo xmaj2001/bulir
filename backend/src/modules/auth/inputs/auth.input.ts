@@ -50,20 +50,14 @@ export class AuthRegisterInput {
   public role: 'client' | 'provider';
 }
 
-export class AuthRefreshInput {
-  @IsNotEmpty({ message: 'O token de refresh não pode estar vazio.' })
-  @IsString({ message: 'O token de refresh deve ser uma string.' })
-  public refreshToken: string;
-}
+export class AuthChangePasswordInput {
+  @IsNotEmpty({ message: 'A senha antiga não pode estar vazia.' })
+  @IsString({ message: 'A senha antiga deve ser uma string.' })
+  @MinLength(6, { message: 'A senha antiga deve ter no mínimo 6 caracteres.' })
+  public oldPassword: string;
 
-export class AuthLogoutInput {
-  @IsNotEmpty({ message: 'O token de refresh não pode estar vazio.' })
-  @IsString({ message: 'O token de refresh deve ser uma string.' })
-  public refreshToken: string;
-}
-
-export class AuthRevokeSessionsInput {
-  @IsNotEmpty({ message: 'O ID do usuário não pode estar vazio.' })
-  @IsString({ message: 'O ID do usuário deve ser uma string.' })
-  public userId: string;
+  @IsNotEmpty({ message: 'A nova senha não pode estar vazia.' })
+  @IsString({ message: 'A nova senha deve ser uma string.' })
+  @MinLength(6, { message: 'A nova senha deve ter no mínimo 6 caracteres.' })
+  public newPassword: string;
 }

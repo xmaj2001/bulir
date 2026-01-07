@@ -6,6 +6,7 @@ export default abstract class UserRepository {
   abstract findById(id: string, tx?: any): Promise<UserEntity | null>;
   abstract findByNif(nif: string): Promise<UserEntity | null>;
   abstract findAll(): Promise<UserEntity[]>;
+  abstract update(user: UserEntity, tx?: any): Promise<UserEntity>;
   abstract updateBalance(
     userId: string,
     amount: number,

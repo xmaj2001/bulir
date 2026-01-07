@@ -6,14 +6,11 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import SessionRepository from 'src/modules/auth/repository/session.repo';
-import IPayload from '../interfaces/payload';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
-    // private readonly session: SessionRepository,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -25,11 +22,6 @@ export class AuthGuard implements CanActivate {
       const payload: any = await this.jwt.verifyAsync(token, {
         secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
       });
-
-      // const session = await this.session.findById(payload.sessionId);
-
-      // if (!session || session.revokedAt)
-      //   throw new UnauthorizedException('Sessão inválida ou revogada');
 
       (request as any).user = payload;
       return true;
