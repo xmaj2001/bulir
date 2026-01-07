@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ServiceService } from '../services/service.service';
@@ -50,7 +51,7 @@ export class ServiceController {
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  getAll() {
-    return this.service.findAll();
+  getAll(@Query('page') page: number, @Query('items') items: number) {
+    return this.service.findPaginated(page, items);
   }
 }

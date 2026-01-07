@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import OtpEntity, { OtpPurpose } from '../entities/otp.entity';
 import OtpRepository from '../repository/otp.repo';
 import { MailSender } from '../../../adapters/mail/mail-sender.port';
 import UserRepository from '../../../modules/user/repository/user.repo';
+import { OtpValidateInput } from '../inputs/otp-validate.input';
 
 @Injectable()
 export class OtpService {
@@ -36,7 +41,7 @@ export class OtpService {
     const otp = await this.otpRepo.find(userId, code, purpose);
 
     if (!otp) {
-      throw new Error('OTP inválido ou expirado');
+      throw new NotFoundException('OTP inválido ou expirado');
     }
 
     await this.otpRepo.markAsUsed(otp.id);
@@ -51,6 +56,22 @@ export class OtpService {
     const otp = await this.generate(user.id, purpose);
     await this.mailSend.sendOtp(user.email, otp.code);
     return otp;
+  }
+
+  async validateOtp(input: OtpValidateInput, userId: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    const otp = await this.validate(
+      userId,
+      input.code,
+      input.purpose as OtpPurpose,
+    );
+
+    if (!otp) {
+      throw new BadRequestException('OTP inválido ou expirado');
+    }
   }
 
   private generateCode(): string {

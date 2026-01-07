@@ -30,6 +30,24 @@ export default class FakeOtpRepository implements OtpRepository {
     );
   }
 
+  async validate(
+    userId: string,
+    code: string,
+    purpose: OtpPurpose,
+  ): Promise<boolean> {
+    const now = new Date();
+    await Promise.resolve();
+    const otp = this.otps.find(
+      (otp) =>
+        otp.userId === userId &&
+        otp.code === code &&
+        otp.purpose === purpose &&
+        otp.expiresAt > now &&
+        !otp.usedAt,
+    );
+    return otp ? true : false;
+  }
+
   async markAsUsed(otpId: string): Promise<void> {
     await Promise.resolve();
     const otp = this.otps.find((o) => o.id === otpId);

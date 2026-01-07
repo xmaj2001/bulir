@@ -43,11 +43,6 @@ export default class FakeUserRepository implements UserRepository {
     return user;
   }
 
-  async findAll() {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return this.users;
-  }
-
   async findById(id: string) {
     await new Promise((resolve) => setTimeout(resolve, 100));
     return this.users.find((user) => user.id === id) ?? null;

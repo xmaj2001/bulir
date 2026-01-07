@@ -28,11 +28,6 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('Deve listar todos os usuários', async () => {
-    const users = await controller.getAll();
-    expect(users.length).toBeGreaterThan(0);
-  });
-
   it('Deve encontrar um usuário pelo email', async () => {
     const user = await controller.getByEmail('max@x.com');
     expect(user).toBeDefined();

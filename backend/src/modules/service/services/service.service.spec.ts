@@ -86,7 +86,7 @@ describe('ServiceService', () => {
       providerId: '1',
     });
 
-    const services = await service.findAll();
+    const services = await service.findPaginated();
     expect(services.length).toBeGreaterThanOrEqual(2);
   });
 

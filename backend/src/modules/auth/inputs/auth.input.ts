@@ -51,6 +51,11 @@ export class AuthRegisterInput {
 }
 
 export class AuthChangePasswordInput {
+  @IsNotEmpty({ message: 'O OTP não pode estar vazio.' })
+  @IsString({ message: 'O OTP deve ser uma string.' })
+  @MinLength(6, { message: 'O OTP deve ter no mínimo 6 caracteres.' })
+  public code: string;
+
   @IsNotEmpty({ message: 'A senha antiga não pode estar vazia.' })
   @IsString({ message: 'A senha antiga deve ser uma string.' })
   @MinLength(6, { message: 'A senha antiga deve ter no mínimo 6 caracteres.' })
@@ -60,4 +65,11 @@ export class AuthChangePasswordInput {
   @IsString({ message: 'A nova senha deve ser uma string.' })
   @MinLength(6, { message: 'A nova senha deve ter no mínimo 6 caracteres.' })
   public newPassword: string;
+}
+
+export class AuthActivateAccountInput {
+  @IsNotEmpty({ message: 'O OTP não pode estar vazio.' })
+  @IsString({ message: 'O OTP deve ser uma string.' })
+  @MinLength(6, { message: 'O OTP deve ter no mínimo 6 caracteres.' })
+  public code: string;
 }

@@ -3,6 +3,8 @@ import { OtpService } from './services/otp.service';
 import OtpRepository from './repository/otp.repo';
 import FakeOtpRepository from './repository/fake/fake-otp.repo';
 import { UserModule } from '../user/user.module';
+import { MailSender } from 'src/adapters/mail/mail-sender.port';
+import { GoogleScriptMailSender } from 'src/adapters/mail/google-script-mail';
 
 @Module({
   providers: [
@@ -10,6 +12,10 @@ import { UserModule } from '../user/user.module';
     {
       provide: OtpRepository,
       useClass: FakeOtpRepository,
+    },
+    {
+      provide: MailSender,
+      useClass: GoogleScriptMailSender,
     },
   ],
   imports: [UserModule],

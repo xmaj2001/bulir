@@ -24,11 +24,6 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  it('Deve listar todos os usuários', async () => {
-    const users = await service.findAll();
-    expect(users.length).toBeGreaterThan(0);
-  });
-
   it('Deve encontrar um usuário pelo ID', async () => {
     const user = await service.findById('1');
     expect(user).toBeDefined();

@@ -16,29 +16,28 @@ import { RolesGuard } from '../../../shared/guard/roles.guard';
 @Controller('users')
 export class UserController {
   constructor(private readonly service: UserService) {}
-
-  @Get()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.PROVIDER)
-  getAll() {
-    return this.service.findAll();
-  }
-
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
   @Get('email/:email')
   getByEmail(@Param('email') email: string) {
     return this.service.findByEmail(email);
   }
-
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
   @Get('nif/:nif')
   getByNif(@Param('nif') nif: string) {
     return this.service.findByNif(nif);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.service.findById(id);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
   @Put(':id/balance')
   updateUserBalance(
     @Param('id') id: string,
@@ -47,6 +46,8 @@ export class UserController {
     return this.service.updateBalance(id, updateBalanceDto.amount);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
   @Delete(':id')
   deleteById(@Param('id') id: string) {
     return this.service.delete(id);

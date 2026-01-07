@@ -42,8 +42,8 @@ export class ServiceService {
     return await this.repo.findByProviderId(providerId);
   }
 
-  async findAll() {
-    return await this.repo.findAll();
+  async findPaginated(page: number = 1, items: number = 10) {
+    return await this.repo.findPaginated(page, items);
   }
 
   async update(input: UpdateServiceInput) {

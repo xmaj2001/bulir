@@ -3,6 +3,11 @@ export enum UserRole {
   CLIENT = 'client',
 }
 
+export enum UserAcountStatus {
+  ACTIVE = 'active',
+  PENDING = 'pending',
+}
+
 export default class UserEntity {
   public id: string;
   public name: string;
@@ -10,6 +15,7 @@ export default class UserEntity {
   public email: string;
   public role: UserRole;
   public balance: number;
+  public status: UserAcountStatus;
   private password: string;
   public createdAt: Date;
   public updatedAt: Date;
@@ -17,6 +23,7 @@ export default class UserEntity {
   constructor(partial?: Partial<UserEntity>) {
     this.balance = 0;
     this.password = 'hashed-123456';
+    this.status = UserAcountStatus.ACTIVE;
     Object.assign(this, partial);
   }
 

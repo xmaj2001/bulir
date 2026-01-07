@@ -2,24 +2,32 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import UserRepository from '../../user/repository/user.repo';
 import {
+  AuthActivateAccountInput,
   AuthChangePasswordInput,
   AuthLoginInput,
   AuthRegisterInput,
 } from '../inputs/auth.input';
 import { PasswordHasher } from '../../../adapters/hasher/password-hasher.port';
-import UserEntity, { UserRole } from '../../user/entities/user.entity';
+import UserEntity, {
+  UserAcountStatus,
+  UserRole,
+} from '../../user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { OtpService } from 'src/modules/otp/services/otp.service';
+import { OtpPurpose } from 'src/modules/otp/entities/otp.entity';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly user: UserRepository,
     private readonly hashPassword: PasswordHasher,
     private readonly jwtService: JwtService,
+    private readonly otpService: OtpService,
   ) {}
 
   async registerUser(input: AuthRegisterInput) {
@@ -42,6 +50,7 @@ export class AuthService {
     newUser.nif = input.nif;
     newUser.role = input.role as UserRole;
     newUser.balance = 0;
+    newUser.status = UserAcountStatus.PENDING;
     newUser.setPassword(passwordHash);
     newUser.createdAt = new Date();
     newUser.updatedAt = new Date();
@@ -84,7 +93,29 @@ export class AuthService {
       throw new UnauthorizedException(`Credenciais inválidas`);
     }
     const tokens = this.generateTokens(existUser);
-    return { ...tokens };
+    return { ...tokens, active: existUser.status === UserAcountStatus.ACTIVE };
+  }
+
+  async requestPasswordChange(userId: string): Promise<void> {
+    await this.otpService.sendOtp(userId, OtpPurpose.CHANGE_PASSWORD);
+  }
+
+  async activateAccount(
+    userId: string,
+    input: AuthActivateAccountInput,
+  ): Promise<void> {
+    const user = await this.user.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    await this.otpService.validate(
+      userId,
+      input.code,
+      OtpPurpose.ACCOUNT_ACTIVATION,
+    );
+    user.status = UserAcountStatus.ACTIVE;
+    user.updatedAt = new Date();
+    await this.user.update(user);
   }
 
   async changePassword(userId: string, input: AuthChangePasswordInput) {
@@ -102,6 +133,11 @@ export class AuthService {
       throw new UnauthorizedException(`Senha antiga inválida`);
     }
 
+    await this.otpService.validate(
+      userId,
+      input.code,
+      OtpPurpose.CHANGE_PASSWORD,
+    );
     const newPasswordHash = await this.hashPassword.hash(input.newPassword);
     existUser.setPassword(newPasswordHash);
     existUser.updatedAt = new Date();

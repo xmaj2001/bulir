@@ -39,9 +39,10 @@ export default class FakeServiceRepository implements ServiceRepository {
     return this.services.find((s) => s.id === id) ?? null;
   }
 
-  async findAll(): Promise<ServiceEntity[]> {
+  async findPaginated(page: number, items: number): Promise<ServiceEntity[]> {
     await Promise.resolve();
-    return this.services;
+    const startIndex = (page - 1) * items;
+    return this.services.slice(startIndex, startIndex + items);
   }
 
   async findByProviderId(providerId: string): Promise<ServiceEntity[]> {

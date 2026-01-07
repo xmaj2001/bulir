@@ -9,5 +9,11 @@ export default abstract class OtpRepository {
     purpose: OtpPurpose,
   ): Promise<OtpEntity | null>;
 
+  abstract validate(
+    userId: string,
+    code: string,
+    purpose: OtpPurpose,
+  ): Promise<boolean>;
+
   abstract markAsUsed(otpId: string): Promise<void>;
 }

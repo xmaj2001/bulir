@@ -13,10 +13,6 @@ export class UserService {
     return this.repo.updateBalance(id, amount);
   }
 
-  async findAll() {
-    return this.repo.findAll();
-  }
-
   async findById(id: string) {
     const result = await this.repo.findById(id);
     if (!result) {

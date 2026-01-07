@@ -6,6 +6,7 @@ import SessionRepository from './repository/session.repo';
 import FakeSessionRepository from './repository/fake/fake.session';
 import { PasswordHasher } from '../../adapters/hasher/password-hasher.port';
 import FakePasswordHasher from '../../adapters/hasher/fake-hash';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
   controllers: [AuthController],
@@ -20,6 +21,6 @@ import FakePasswordHasher from '../../adapters/hasher/fake-hash';
       useClass: FakePasswordHasher,
     },
   ],
-  imports: [UserModule],
+  imports: [UserModule, OtpModule],
 })
 export class AuthModule {}

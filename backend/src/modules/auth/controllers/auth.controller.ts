@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import {
+  AuthActivateAccountInput,
   AuthChangePasswordInput,
   AuthLoginInput,
   AuthRegisterInput,
@@ -61,6 +62,23 @@ export class AuthController {
   ) {
     const userId = req.user?.sub || '';
     return this.service.changePassword(userId, body);
+  }
+
+  @Post('request-account-activation')
+  @UseGuards(AuthGuard)
+  requestAccountActivation(
+    @Body() body: AuthActivateAccountInput,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user?.sub || '';
+    return this.service.activateAccount(userId, body);
+  }
+
+  @Post('request-password-change')
+  @UseGuards(AuthGuard)
+  requestPasswordChange(@Req() req: RequestWithUser) {
+    const userId = req.user?.sub || '';
+    return this.service.requestPasswordChange(userId);
   }
 
   @Post('refresh-token')
