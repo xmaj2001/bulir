@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
@@ -12,6 +13,8 @@ import { AuthGuard } from '../../../shared/guard/auth.guard';
 import { Roles } from '../../../shared/decorator/roles.decorator';
 import { UserRole } from '../entities/user.entity';
 import { RolesGuard } from '../../../shared/guard/roles.guard';
+import { RequestWithUser } from 'src/shared/http/user-request';
+import { UpdateBalanceInput } from '../inputs/update-balance-user';
 
 @Controller('users')
 export class UserController {
@@ -38,12 +41,13 @@ export class UserController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  @Put(':id/balance')
-  updateUserBalance(
-    @Param('id') id: string,
-    @Body() updateBalanceDto: { amount: number },
+  @Put('/balance')
+  updateBalance(
+    @Body() input: UpdateBalanceInput,
+    @Req() req: RequestWithUser,
   ) {
-    return this.service.updateBalance(id, updateBalanceDto.amount);
+    const id = req.user?.sub ?? '';
+    return this.service.updateBalance(id, input.amount);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

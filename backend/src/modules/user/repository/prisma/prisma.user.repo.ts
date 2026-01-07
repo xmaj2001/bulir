@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import UserEntity, {
   UserAcountStatus,
@@ -9,6 +10,22 @@ import UserRepository from 'src/modules/user/repository/user.repo';
 @Injectable()
 export default class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  private mapToUserEntity(user: User): UserEntity {
+    const userEntity = new UserEntity({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      nif: user.nif,
+      role: user.role as UserRole,
+      balance: user.balance,
+      status: user.status as UserAcountStatus,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+    userEntity.setPassword(user.password);
+    return userEntity;
+  }
 
   async create(user: UserEntity): Promise<UserEntity> {
     const createdUser = await this.prisma.user.create({
@@ -23,19 +40,7 @@ export default class PrismaUserRepository implements UserRepository {
         status: user.status,
       },
     });
-    const createdUserEntity = new UserEntity({
-      id: createdUser.id,
-      name: createdUser.name,
-      email: createdUser.email,
-      nif: createdUser.nif,
-      role: createdUser.role as UserRole,
-      balance: createdUser.balance,
-      status: createdUser.status as UserAcountStatus,
-      createdAt: createdUser.createdAt,
-      updatedAt: createdUser.updatedAt,
-    });
-    createdUserEntity.setPassword(createdUser.password);
-    return createdUserEntity;
+    return this.mapToUserEntity(createdUser);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -43,39 +48,15 @@ export default class PrismaUserRepository implements UserRepository {
       where: { email },
     });
     if (!user) return null;
-    const userEntity = new UserEntity({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      nif: user.nif,
-      role: user.role as UserRole,
-      balance: user.balance,
-      status: user.status as UserAcountStatus,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
-    userEntity.setPassword(user.password);
-    return userEntity;
+    return this.mapToUserEntity(user);
   }
 
-  async findById(id: string, tx?: any): Promise<UserEntity | null> {
+  async findById(id: string): Promise<UserEntity | null> {
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
     if (!user) return null;
-    const userEntity = new UserEntity({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      nif: user.nif,
-      role: user.role as UserRole,
-      balance: user.balance,
-      status: user.status as UserAcountStatus,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
-    userEntity.setPassword(user.password);
-    return userEntity;
+    return this.mapToUserEntity(user);
   }
 
   async findByNif(nif: string): Promise<UserEntity | null> {
@@ -83,19 +64,7 @@ export default class PrismaUserRepository implements UserRepository {
       where: { nif },
     });
     if (!user) return null;
-    const userEntity = new UserEntity({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      nif: user.nif,
-      role: user.role as UserRole,
-      balance: user.balance,
-      status: user.status as UserAcountStatus,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
-    userEntity.setPassword(user.password);
-    return userEntity;
+    return this.mapToUserEntity(user);
   }
 
   async updateBalance(
@@ -109,7 +78,9 @@ export default class PrismaUserRepository implements UserRepository {
         id: userId,
       },
       data: {
-        balance: amount,
+        balance: {
+          increment: amount,
+        },
       },
     });
     if (updatedUsers.count === 0) {
@@ -130,19 +101,7 @@ export default class PrismaUserRepository implements UserRepository {
         status: user.status,
       },
     });
-    const updatedUserEntity = new UserEntity({
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      nif: updatedUser.nif,
-      role: updatedUser.role as UserRole,
-      balance: updatedUser.balance,
-      status: updatedUser.status as UserAcountStatus,
-      createdAt: updatedUser.createdAt,
-      updatedAt: updatedUser.updatedAt,
-    });
-    updatedUserEntity.setPassword(updatedUser.password);
-    return updatedUserEntity;
+    return this.mapToUserEntity(updatedUser);
   }
 
   async debitBalance(

@@ -15,11 +15,11 @@ import { AppService } from './modules/app/app.service';
     PrismaModule.forRoot({
       isGlobal: true,
     }),
-    // CacheModule.register({
-    //   isGlobal: true,
-    //   ttl: getCacheTTL('1h'), // seconds
-    //   max: getCacheTTL('12h'), // maximum number of items in cache
-    // }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 5 * 60 * 1000, // 5 minutos em milissegundos
+      max: 100, // máximo de itens em cache
+    }),
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '1h' },

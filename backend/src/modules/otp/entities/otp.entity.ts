@@ -11,7 +11,7 @@ export default class OtpEntity {
   code: string;
   purpose: OtpPurpose;
   expiresAt: Date;
-  usedAt?: Date;
+  usedAt?: Date | undefined | null;
 
   createdAt: Date;
   constructor(partial: Partial<OtpEntity>) {

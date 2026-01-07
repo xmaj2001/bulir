@@ -4,6 +4,7 @@ import { ServiceController } from './controllers/service.controller';
 import ServiceRepository from './repository/service.repo';
 import FakeServiceRepository from './repository/fake.service.repo';
 import { UserModule } from '../user/user.module';
+import PrismaServiceRepository from './repository/prisma/prisma.service.repo';
 
 @Module({
   controllers: [ServiceController],
@@ -11,7 +12,8 @@ import { UserModule } from '../user/user.module';
     ServiceService,
     {
       provide: ServiceRepository,
-      useClass: FakeServiceRepository,
+      // useClass: FakeServiceRepository,
+      useClass: PrismaServiceRepository,
     },
   ],
   imports: [UserModule],

@@ -65,7 +65,7 @@ model Otp {
   code      String
   userId    String
   purpose   String
-  used      Boolean  @default(false)
+  usedAt    DateTime?
   expiresAt DateTime
   createdAt DateTime @default(now())
 

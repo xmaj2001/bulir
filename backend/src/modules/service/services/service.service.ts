@@ -12,8 +12,8 @@ export class ServiceService {
     private readonly user: UserRepository,
   ) {}
 
-  async create(input: CreateServiceInput) {
-    const provider = await this.user.findById(input.providerId);
+  async create(input: CreateServiceInput, providerId: string) {
+    const provider = await this.user.findById(providerId);
     if (!provider) {
       throw new NotFoundException(`O prestador não foi encontrado`);
     }
@@ -21,7 +21,7 @@ export class ServiceService {
       input.name,
       input.description,
       input.price,
-      input.providerId,
+      providerId,
     );
     return await this.repo.create(newService);
   }
@@ -46,8 +46,8 @@ export class ServiceService {
     return await this.repo.findPaginated(page, items);
   }
 
-  async update(input: UpdateServiceInput) {
-    const provider = await this.user.findById(input.providerId);
+  async update(input: UpdateServiceInput, providerId: string) {
+    const provider = await this.user.findById(providerId);
     if (!provider) {
       throw new NotFoundException(`O prestador não foi encontrado`);
     }

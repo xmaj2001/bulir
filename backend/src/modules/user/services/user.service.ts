@@ -10,7 +10,16 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`O usuário com id ${id} não foi encontrado`);
     }
-    return this.repo.updateBalance(id, amount);
+
+    if (user.balance + amount < 0) {
+      throw new NotFoundException(`Saldo insuficiente para esta operação`);
+    }
+
+    const result = await this.repo.updateBalance(id, amount);
+    if (!result) {
+      throw new Error('Erro ao atualizar o saldo do usuário');
+    }
+    return result;
   }
 
   async findById(id: string) {
@@ -18,7 +27,17 @@ export class UserService {
     if (!result) {
       throw new NotFoundException(`O usuário com id ${id} não foi encontrado`);
     }
-    return result;
+    return {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      nif: result.nif,
+      role: result.role,
+      balance: result.balance,
+      status: result.status,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
   async findByNif(nif: string) {
@@ -28,7 +47,17 @@ export class UserService {
         `O usuário com NIF ${nif} não foi encontrado`,
       );
     }
-    return result;
+    return {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      nif: result.nif,
+      role: result.role,
+      balance: result.balance,
+      status: result.status,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
   async findByEmail(email: string) {
@@ -38,7 +67,17 @@ export class UserService {
         `O usuário com email ${email} não foi encontrado`,
       );
     }
-    return result;
+    return {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      nif: result.nif,
+      role: result.role,
+      balance: result.balance,
+      status: result.status,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
   async delete(id: string) {

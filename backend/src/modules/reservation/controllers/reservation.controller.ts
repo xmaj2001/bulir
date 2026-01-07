@@ -23,8 +23,9 @@ export class ReservationController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.CLIENT)
-  create(@Body() input: CreateReservationInput) {
-    return this.service.create(input);
+  create(@Body() input: CreateReservationInput, @Req() req: RequestWithUser) {
+    const clientId = req.user?.sub ?? '';
+    return this.service.create(input, clientId);
   }
 
   @Get(':id')
@@ -34,10 +35,11 @@ export class ReservationController {
     return this.service.findById(id);
   }
 
-  @Get('client/:clientId')
+  @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.CLIENT)
-  findByClientId(@Param('clientId') clientId: string) {
+  findByClientId(@Req() req: RequestWithUser) {
+    const clientId = req.user?.sub ?? '';
     return this.service.findByClientId(clientId);
   }
 

@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ServiceService } from '../services/service.service';
@@ -15,6 +16,7 @@ import { RolesGuard } from '../../../shared/guard/roles.guard';
 import { Roles } from '../../../shared/decorator/roles.decorator';
 import { UserRole } from '../../user/entities/user.entity';
 import { UpdateServiceInput } from '../inputs/upadate-service';
+import { RequestWithUser } from 'src/shared/http/user-request';
 
 @Controller('services')
 export class ServiceController {
@@ -23,15 +25,17 @@ export class ServiceController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER)
-  create(@Body() input: CreateServiceInput) {
-    return this.service.create(input);
+  create(@Body() input: CreateServiceInput, @Req() req: RequestWithUser) {
+    const userId = req.user?.sub || '';
+    return this.service.create(input, userId);
   }
 
   @Put()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER)
-  update(@Body() input: UpdateServiceInput) {
-    return this.service.update(input);
+  update(@Body() input: UpdateServiceInput, @Req() req: RequestWithUser) {
+    const userId = req.user?.sub || '';
+    return this.service.update(input, userId);
   }
 
   @Get(':id')

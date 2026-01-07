@@ -2,6 +2,8 @@ import { Type } from 'class-transformer';
 import {
   IsNegative,
   IsNotEmpty,
+  IsPositive,
+  isPositive,
   IsString,
   Max,
   MaxLength,
@@ -32,10 +34,6 @@ export class CreateServiceInput {
   @Type(() => Number)
   @IsNotEmpty({ message: 'O preço do serviço é obrigatório' })
   @Max(100000, { message: 'O preço do serviço deve ser no máximo 100000' })
-  @IsNegative({ message: 'O preço do serviço deve ser um número positivo' })
+  @IsPositive({ message: 'O preço do serviço deve ser um número positivo' })
   price: number;
-
-  @IsNotEmpty({ message: 'O ID do provedor é obrigatório' })
-  @IsString({ message: 'O ID do provedor deve ser uma string' })
-  providerId: string;
 }

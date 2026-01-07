@@ -5,13 +5,15 @@ import FakeOtpRepository from './repository/fake/fake-otp.repo';
 import { UserModule } from '../user/user.module';
 import { MailSender } from 'src/adapters/mail/mail-sender.port';
 import { GoogleScriptMailSender } from 'src/adapters/mail/google-script-mail';
+import PrismaOtpRepository from './repository/prisma/prisma.otp.repo';
 
 @Module({
   providers: [
     OtpService,
     {
       provide: OtpRepository,
-      useClass: FakeOtpRepository,
+      useClass: PrismaOtpRepository,
+      // useClass: FakeOtpRepository,
     },
     {
       provide: MailSender,

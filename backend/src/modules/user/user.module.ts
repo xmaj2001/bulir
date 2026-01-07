@@ -3,7 +3,7 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import UserRepository from './repository/user.repo';
 import FakeUserRepository from './repository/fake.user.repo';
-import PrismaUserRepository from '../auth/repository/prisma/prisma.user.repo';
+import PrismaUserRepository from './repository/prisma/prisma.user.repo';
 
 @Module({
   controllers: [UserController],
