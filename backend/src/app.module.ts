@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ServiceModule } from './modules/service/service.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { OtpModule } from './modules/otp/otp.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     }),
     ServiceModule,
     ReservationModule,
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

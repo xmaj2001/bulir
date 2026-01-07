@@ -5,4 +5,7 @@ export interface RequestWithUser extends Request {
     sub: string;
     role: string;
   };
+  cookies: {
+    refreshToken?: string;
+  };
 }

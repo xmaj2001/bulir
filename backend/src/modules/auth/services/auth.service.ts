@@ -111,6 +111,29 @@ export class AuthService {
     return { message: 'Senha alterada com sucesso' };
   }
 
+  refreshToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+      });
+
+      const newAccessToken = this.jwtService.sign(
+        {
+          sub: payload.sub,
+          role: payload.role,
+        },
+        {
+          secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
+          expiresIn: '15m',
+        },
+      );
+
+      return { accessToken: newAccessToken };
+    } catch (error) {
+      throw new UnauthorizedException('Refresh token inválido ou expirado');
+    }
+  }
+
   private generateTokens(user: UserEntity) {
     const payload = { sub: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload, {

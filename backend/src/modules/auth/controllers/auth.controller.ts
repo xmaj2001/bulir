@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Logger,
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
@@ -13,7 +13,7 @@ import {
   AuthLoginInput,
   AuthRegisterInput,
 } from '../inputs/auth.input';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import type { RequestWithUser } from 'src/shared/http/user-request';
 import { AuthGuard } from 'src/shared/guard/auth.guard';
 @Controller('auth')
@@ -61,5 +61,20 @@ export class AuthController {
   ) {
     const userId = req.user?.sub || '';
     return this.service.changePassword(userId, body);
+  }
+
+  @Post('refresh-token')
+  refreshToken(@Req() req: RequestWithUser, @Res() res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token não encontrado');
+    }
+
+    const result = this.service.refreshToken(refreshToken);
+
+    return res.send({
+      accessToken: result.accessToken,
+    });
   }
 }
