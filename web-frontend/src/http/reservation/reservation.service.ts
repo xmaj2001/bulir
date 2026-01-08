@@ -72,6 +72,7 @@ export const ReservationService = {
   },
 
   async getReservations(accessToken: string): Promise<Reservation[]> {
+    console.log("Fetching reservations with token:", accessToken);
     const response = await fetch(`${API.BASE_URL}/reservations`, {
       method: "GET",
       headers: {

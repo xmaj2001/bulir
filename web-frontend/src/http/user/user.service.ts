@@ -39,4 +39,21 @@ export const UserService = {
     }
     return dataJson;
   },
+
+  async me(accessToken: string): Promise<User | null> {
+    const resp = await fetch(`${API.BASE_URL}/users/me`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const dataJson = await resp.json();
+    if (!resp.ok) {
+      console.error(`Erro ao buscar dados do usuário logado:`, dataJson);
+      return null;
+    }
+    return dataJson;
+  }
 };

@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { signIn, useSession } from "next-auth/react";
 
 // Validação com Zod
 const loginSchema = z.object({
@@ -36,7 +36,6 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -49,8 +48,13 @@ export default function Login() {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      const success = await login(values.email, values.password);
-      if (!success) {
+      const success = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+        callbackUrl: "/services",
+      });
+      if (!success || success.error) {
         form.setError("password", { type: "manual", message: "Email ou senha inválidos" });
         return;
       }

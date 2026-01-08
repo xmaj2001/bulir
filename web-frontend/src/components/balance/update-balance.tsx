@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { UserService } from "@/http/user/user.service";
-import { useAuth } from "@/context/AuthContext";
+import { useSession } from "next-auth/react";
 
 const updateBalanceSchema = z.object({
   amount: z
@@ -51,7 +51,7 @@ export const UpdateBalance = ({
   setLoading,
 }: UpdateBalanceProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { accessToken } = useAuth();
+ const { data: session } = useSession();
   const form = useForm<UpdateBalanceForm>({
     resolver: zodResolver(updateBalanceSchema),
     defaultValues: {
@@ -64,7 +64,7 @@ export const UpdateBalance = ({
       setIsLoading(true);
       setLoading(true);
       const result = await UserService.updateBalance(
-        accessToken ?? "",
+        session?.accessToken ?? "",
         parseFloat(form.getValues("amount"))
       );
       

@@ -1,9 +1,7 @@
-import { useAuth } from "@/context/AuthContext";
-import {
-  ReservationService,
-  Reservation,
-} from "@/http/reservation/reservation.service";
+import { ReservationService } from "@/http/reservation/reservation.service";
+import { Reservation } from "@/types/reservation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface ReservationError extends Error {
@@ -44,19 +42,20 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 export function useReservation(serviceId?: string) {
-  const { accessToken } = useAuth();
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
-  const bookMutation = useMutation<Reservation, Error, void>({
+  const bookMutation = useMutation<Reservation, Error, string | undefined>({
     mutationKey: ["reservation", serviceId, "book"],
-    mutationFn: async () => {
-      if (!serviceId) {
+    mutationFn: async (id?: string) => {
+      if (serviceId) id = serviceId;
+      if (!id) {
         throw new Error("Serviço não informado");
       }
-      if (!accessToken) {
+      if (!session?.accessToken) {
         throw new Error("Utilizador não autenticado");
       }
-      return ReservationService.book(serviceId, accessToken);
+      return ReservationService.book(id, session?.accessToken);
     },
     onSuccess: (data) => {
       toast.success(
@@ -74,10 +73,10 @@ export function useReservation(serviceId?: string) {
   const cancelMutation = useMutation<Reservation, Error, string>({
     mutationKey: ["reservation", "cancel"],
     mutationFn: async (reservationId: string) => {
-      if (!accessToken) {
+      if (!session?.accessToken) {
         throw new Error("Utilizador não autenticado");
       }
-      return ReservationService.cancel(reservationId, accessToken);
+      return ReservationService.cancel(reservationId, session.accessToken);
     },
     onSuccess: (data) => {
       toast.success("Reserva cancelada com sucesso");
@@ -90,7 +89,7 @@ export function useReservation(serviceId?: string) {
     },
   });
 
-  const bookReservation = () => bookMutation.mutateAsync();
+  const bookReservation = (id?: string) => bookMutation.mutateAsync(id);
   const cancelReservation = (reservationId: string) =>
     cancelMutation.mutateAsync(reservationId);
 

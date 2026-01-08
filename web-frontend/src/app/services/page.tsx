@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -8,14 +8,14 @@ import {
   MapPin,
   ArrowRight,
   SlidersHorizontal,
+  Component,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Footer } from "@/components/landing/Footer";
 import useServices from "@/hooks/use-services";
 import { Service as ServiceModel } from "@/types/service";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { formatCurrency } from "@/lib/utils";
 
 const categories = [
   "Todos",
@@ -33,30 +33,22 @@ const placeholderImage =
 export default function Services() {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
-  const [services, setServices] = useState<ServiceModel[]>([]);
-  const { servicesQuery, user } = useServices();
+  const { services, isLoading, user } = useServices();
   const router = useRouter();
-  const isLoading = servicesQuery.isLoading;
 
-  useEffect(() => {
-    if (servicesQuery.data) {
-      setServices(servicesQuery.data || []);
-    }
-  }, [servicesQuery.data]);
+  const datas = (services as ServiceModel[]) || [];
 
   const filteredServices = useMemo(
     () =>
-      services.filter((service) => {
+      datas.filter((service) => {
         const matchesCategory =
           selectedCategory === "Todos" || service.category === selectedCategory;
         const serviceName = service.name?.toLowerCase() || "";
-        const providerName = service.provider?.toLowerCase() || "";
         const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          serviceName.includes(query) || providerName.includes(query);
+        const matchesSearch = serviceName.includes(query);
         return matchesCategory && matchesSearch;
       }),
-    [services, searchQuery, selectedCategory]
+    [datas, searchQuery, selectedCategory]
   );
   if (!user) {
     return null;
@@ -125,7 +117,7 @@ export default function Services() {
             ))}
           </motion.div>
           {/* Loading Indicator */}
-          {servicesQuery.isLoading && (
+          {isLoading && (
             <div className="text-center text-muted-foreground">
               Carregando serviços...
             </div>
@@ -134,12 +126,9 @@ export default function Services() {
           {/* Services Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredServices.map((service, index) => {
-              const providerName = service.provider ?? "Prestador";
-              const categoryLabel = service.category ?? "Serviço";
-              const rating = service.rating ?? 5;
-              const reviews = service.reviews ?? 0;
-              const duration = service.duration ?? "45min";
-              const location = service.location ?? "Disponível";
+              const providerName = service.description;
+              const categoryLabel = "Serviço";
+              const duration = service.createdAt ;
               const priceValue = Number.isFinite(service.price)
                 ? service.price
                 : 0;
@@ -155,18 +144,21 @@ export default function Services() {
                 >
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
-                    <img
+                    {/* <img
                       src={imageSrc}
                       alt={service.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    /> */}
+                    <div className="w-full h-full group-hover:scale-110 transition-transform duration-500 flex items-center justify-center">
+                        <Component className="w-[50%] h-[50%] text-primary"/>
+                    </div>
+                    {/* <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" /> */}
                     <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-white/90 text-xs font-medium text-foreground">
                       {categoryLabel}
                     </div>
                     <div className="absolute bottom-3 left-3">
-                      <p className="text-white text-xl font-bold">
-                        €{Number(priceValue).toFixed(2)}
+                      <p className="text-primary text-xl font-bold">
+                        {formatCurrency(priceValue)}
                       </p>
                     </div>
                   </div>
@@ -181,21 +173,21 @@ export default function Services() {
                     </p>
 
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
+                      {/* <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-warning fill-warning" />
                         <span className="font-medium text-foreground">
                           {rating}
                         </span>
                         <span>({reviews})</span>
-                      </div>
+                      </div> */}
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
                         <span>{duration}</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      {/* <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
                         <span>{location}</span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {user.role !== "provider" && (

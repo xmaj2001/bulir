@@ -1,7 +1,4 @@
 "use client";
-
-import { useClientReservations } from "@/hooks/use-client-reservations";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,87 +21,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, MoreVertical, RefreshCw, X } from "lucide-react";
+import { Loader2, MoreVertical, RefreshCw } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { useReservation } from "@/hooks/use-reservation";
 import { useState } from "react";
-import { Reservation } from "@/types/reservation";
+import { Service } from "@/types/service";
+import useServices from "@/hooks/use-services";
 
-const getStatusBadge = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case "pending":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-yellow-50 text-yellow-800 border-yellow-200"
-        >
-          Pendente
-        </Badge>
-      );
-    case "confirmed":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-800 border-green-200"
-        >
-          Confirmada
-        </Badge>
-      );
-    case "completed":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-blue-50 text-blue-800 border-blue-200"
-        >
-          Concluída
-        </Badge>
-      );
-    case "cancelled":
-      return (
-        <Badge
-          variant="outline"
-          className="bg-red-50 text-red-800 border-red-200"
-        >
-          Cancelada
-        </Badge>
-      );
-    default:
-      return <Badge variant="outline">{status}</Badge>;
-  }
-};
-
-interface ReservationRowProps {
-  reservation: Reservation;
-  onCancel: (id: string) => Promise<void>;
-  isCancelling: boolean;
+interface TableRowProps {
+  data: Service;
+  onClick: (data: Service) => Promise<void>;
 }
 
-function ReservationRow({
-  reservation,
-  onCancel,
-  isCancelling,
-}: ReservationRowProps) {
+function TableRowC({ data, onClick }: TableRowProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleCancel = async () => {
-    await onCancel(reservation.id);
-    setIsOpen(false);
-  };
-
   return (
-    <TableRow>
+    <TableRow className="hover:cursor-pointer" key={data.id} onClick={() => onClick(data)}>
       <TableCell className="font-medium">
-        <span className="text-sm">#{reservation.id.slice(0, 8).toUpperCase()}</span>
+        <span className="text-sm">#{data.id.slice(0, 8).toUpperCase()}</span>
       </TableCell>
       <TableCell>
-        <span className="text-sm">{reservation.service?.name}</span>
+        <span className="text-sm">{data.name}</span>
       </TableCell>
       <TableCell>
-        <span className="font-semibold">{reservation.price.toFixed(2)} Kz</span>
+        <span className="font-semibold">{data.price.toFixed(2)} Kz</span>
       </TableCell>
-      <TableCell>{getStatusBadge(reservation.status)}</TableCell>
+      <TableCell>
+        <span className="text-sm">{data.reservations.length || 0}</span>
+      </TableCell>
       <TableCell className="text-muted-foreground text-sm">
-        {formatDate(reservation.createdAt)}
+        {formatDate(data.createdAt)}
       </TableCell>
       <TableCell className="text-right">
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -115,21 +61,10 @@ function ReservationRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={handleCancel}
-              disabled={isCancelling}
+              onClick={() => onClick(data)}
               className="text-destructive"
             >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Cancelando...
-                </>
-              ) : (
-                <>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar reserva
-                </>
-              )}
+              Ver
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -138,19 +73,17 @@ function ReservationRow({
   );
 }
 
-export function ReservationTable() {
-  const { reservations, isLoading, isError, error, refetch } =
-    useClientReservations();
-  const { cancelReservation, isCancelling } = useReservation();
+interface ServiceTableProps {
+  onRowClick: (data: Service) => Promise<void>;
+}
 
-  const handleCancel = async (reservationId: string) => {
-    await cancelReservation(reservationId);
-    refetch();
-  };
+export function ServiceTable({ onRowClick }: ServiceTableProps) {
+  const { services, refetch, isLoading, isError, error } = useServices();
 
+  const datas = (services as Service[]) || [];
   if (isError) {
     return (
-      <Card className="border-destructive/50">
+      <Card className="border-destructive/50 mx-8">
         <CardContent className="pt-6">
           <div className="text-center space-y-2">
             <p className="text-sm font-medium text-destructive">
@@ -175,13 +108,11 @@ export function ReservationTable() {
     <Card className="shadow-none border-0">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div className="space-y-0.5">
-          <CardTitle>Minhas Reservas</CardTitle>
+          <CardTitle>Meus Serviços</CardTitle>
           <CardDescription>
-            {reservations.length === 0
-              ? "Nenhuma reserva realizada"
-              : `${reservations.length} reserva${
-                  reservations.length !== 1 ? "s" : ""
-                }`}
+            {datas.length === 0
+              ? "Nenhum serviço criado"
+              : `${datas.length} serviço${datas.length !== 1 ? "s" : ""}`}
           </CardDescription>
         </div>
         <Button
@@ -192,6 +123,7 @@ export function ReservationTable() {
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
         </Button>
+       
       </CardHeader>
 
       <CardContent>
@@ -199,13 +131,13 @@ export function ReservationTable() {
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        ) : reservations.length === 0 ? (
+        ) : datas.length === 0 ? (
           <div className="text-center py-8 space-y-2">
             <p className="text-sm text-muted-foreground">
-              Ainda não tens nenhuma reserva
+              Ainda não tens nenhum serviço criado
             </p>
             <p className="text-xs text-muted-foreground">
-              Explora serviços e cria uma reserva para começar
+              Explora serviços e cria um serviço para começar
             </p>
           </div>
         ) : (
@@ -213,21 +145,20 @@ export function ReservationTable() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>ID Reserva</TableHead>
+                  <TableHead>ID</TableHead>
                   <TableHead>Serviço</TableHead>
                   <TableHead>Valor</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead>Reservas</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reservations.map((reservation) => (
-                  <ReservationRow
-                    key={reservation.id}
-                    reservation={reservation}
-                    onCancel={handleCancel}
-                    isCancelling={isCancelling}
+                {datas.map((service) => (
+                  <TableRowC
+                    key={service.id}
+                    data={service}
+                    onClick={() => onRowClick(service)}
                   />
                 ))}
               </TableBody>

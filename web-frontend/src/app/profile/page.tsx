@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { Plus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import useUser from "@/hooks/use-user";
 import { Dialog } from "@/components/ui/dialog";
 import {
   UpdateBalance,
   UpdateBalanceForm,
 } from "@/components/balance/update-balance";
 import { toast } from "sonner";
+import { useUserMe } from "@/hooks/use-user";
+import { formatDate } from "@/lib/utils";
 
 export function PageTransaction() {
   const [isRunning, setIsRunning] = useState(false);
@@ -18,7 +19,7 @@ export function PageTransaction() {
   const [step, setStep] = useState<"idle" | "running" | "success" | "rollback">(
     "idle"
   );
-  const { userQuery } = useUser();
+  const { userQuery } = useUserMe();
   const [clientBalance, setClientBalance] = useState(0);
   const [providerBalance, setProviderBalance] = useState(800);
 
@@ -84,50 +85,28 @@ export function PageTransaction() {
         {/* Recentes transações */}
         <div className="space-y-3 p-4 rounded-lg bg-muted/30 mb-6">
           <h4 className="font-semibold text-foreground text-sm">
-            Detalhes da Transação
+            Detalhes Perfil
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Serviço</p>
+              <p className="text-muted-foreground">Perfil</p>
               <p className="font-medium text-foreground">
-                Reparação de Encanamento
+               {userQuery.data?.role === "client" ? "Cliente" : "Prestador"}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Valor</p>
-              <p className="font-medium text-primary">75.00€</p>
+              <p className="text-muted-foreground">email</p>
+              <p className="font-medium text-primary">{userQuery.data?.email}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">ID Transação</p>
-              <p className="font-medium text-foreground">TXN-2026-0001</p>
+              <p className="text-muted-foreground">NIF</p>
+              <p className="font-medium text-foreground">{userQuery.data?.nif}</p>
             </div>
-            <div>
-              <p className="text-muted-foreground">Data</p>
-              <p className="font-medium text-foreground">6 Jan 2026</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Hora</p>
-              <p className="font-medium text-foreground">14:23:45</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Status</p>
-              <p
-                className={`font-medium ${
-                  step === "success"
-                    ? "text-emerald-500"
-                    : step === "rollback"
-                    ? "text-destructive"
-                    : step === "running"
-                    ? "text-primary animate-pulseGlow"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {step === "idle" && "Pendente"}
-                {step === "running" && "Processando..."}
-                {step === "success" && "Concluída"}
-                {step === "rollback" && "Revertida"}
-              </p>
-            </div>
+           
+            <Button variant="link" className="flex flex-col items-start p-0 w-1/5">
+              <p className="text-muted-foreground">Alterar senha</p>
+              <p className="font-medium text-foreground">************</p>
+            </Button>
           </div>
         </div>
         <UpdateBalance
@@ -136,7 +115,7 @@ export function PageTransaction() {
           setLoading={setIsRunning}
         />
         {/* Controls */}
-        <div className="flex gap-3">
+        {/* <div className="flex gap-3">
           <Button
             onClick={() => setIsOpen(true)}
             disabled={isRunning || step === "success"}
@@ -145,7 +124,7 @@ export function PageTransaction() {
             <Plus className="w-4 h-4 mr-2" />
             Atualizar Saldo
           </Button>
-        </div>
+        </div> */}
       </div>
     </Dialog>
   );

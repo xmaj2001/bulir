@@ -3,26 +3,16 @@
 import * as React from "react";
 import {
   IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
   IconInnerShadowTop,
   IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
   IconWallet,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -34,7 +24,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Calendar, History } from "lucide-react";
-import { WalletWidget } from "./layout/WalletWidget";
+import { useSession } from "next-auth/react";
 
 const data = {
   user: {
@@ -112,43 +102,15 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Carteira",
-      url: "/balance",
-      icon: IconWallet,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
+
+
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, status} = useSession();
+  if(status !== "authenticated") {
+    return null;
+  }
   return (
     <Sidebar collapsible="icon"  {...props}>
       <SidebarHeader>
@@ -170,11 +132,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser user={session?.user} />
       </SidebarFooter>
     </Sidebar>
   );

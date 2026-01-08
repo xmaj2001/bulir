@@ -25,11 +25,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { User2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-export function NavUser() {
+export function NavUser({user}: {user?: {name: string; email: string; avatarUrl?: string}}) {
   const { isMobile } = useSidebar();
-  const { user, logout } = useAuth();
+  const router = useRouter()
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -46,7 +48,9 @@ export function NavUser() {
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.name}</span>
+                <span className="truncate font-medium">
+                  {user?.name}
+                </span>
                 <span className="text-muted-foreground truncate text-xs">
                   {user?.email}
                 </span>
@@ -69,7 +73,9 @@ export function NavUser() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user?.name}</span>
+                  <span className="truncate font-medium">
+                    {user?.name}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user?.email}
                   </span>
@@ -78,23 +84,15 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <IconUserCircle />
                 Conta
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Alterar Senha
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notificações
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                logout();
+                signOut();
               }}
             >
               <IconLogout />

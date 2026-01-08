@@ -1,17 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
-import useUser from "@/hooks/use-user";
+import { useUserMe } from "@/hooks/use-user";
 
 export function PageTransaction() {
   const [isRunning, setIsRunning] = useState(false);
   const [step, setStep] = useState<"idle" | "running" | "success" | "rollback">(
     "idle"
   );
-  const { userQuery } = useUser();
+  const { userQuery } = useUserMe();
   const [clientBalance, setClientBalance] = useState(
     userQuery.data?.balance ?? 0
   );

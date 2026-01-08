@@ -1,3 +1,5 @@
+import { Reservation } from "./reservation";
+
 export interface Service {
   id: string;
   name: string;
@@ -7,10 +9,6 @@ export interface Service {
   createdAt: string;
   updatedAt: string;
   category?: string;
-  provider?: string;
-  rating?: number;
-  reviews?: number;
-  duration?: string;
-  location?: string;
   image?: string;
+  reservations: Reservation[];
 }

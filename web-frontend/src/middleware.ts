@@ -1,23 +1,51 @@
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export default async function middleware(req: Request) {
-  const url = new URL(req.url);
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
 
-//   const accessToken = req.cookies.get("accessToken")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
 
-//   const isAuthPath = url.pathname.startsWith("/auth");
+    const pathname = req.nextUrl.pathname;
 
-//   if (!accessToken && !isAuthPath) {
-//     return Response.redirect(new URL("/auth/login", req.url), 307);
-//   }
+    if (pathname.startsWith("/services")) {
+      if (token.role == "provider") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+     if (pathname.startsWith("/reservations")) {
+      if (token.role == "provider") {
+        return NextResponse.redirect(new URL("/history", req.url));
+      }
+    }
 
-//   if (accessToken && isAuthPath) {
-//     return Response.redirect(new URL("/", req.url), 307);
-//   }
+    if (pathname.startsWith("/dashboard")) {
+      if (token.role == "client") {
+        return NextResponse.redirect(new URL("/services", req.url));
+      }
+    }
+    
 
-  return NextResponse.next();
-}
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  }
+);
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/services/:path*",
+    "/dashboard/:path*",
+    "/book/:path*",
+    "/reservations/:path*",
+    "/history/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+  ],
 };

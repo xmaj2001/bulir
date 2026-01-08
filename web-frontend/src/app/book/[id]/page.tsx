@@ -3,17 +3,19 @@
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import useUser from "@/hooks/use-user"
 import { useParams } from "next/navigation"
 import { useReservation } from "@/hooks/use-reservation"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { useUserMe } from "@/hooks/use-user"
+import { is } from "zod/v4/locales"
+import { formatDate } from "@/lib/utils"
 
 export default function Page() {
   const { id } = useParams()
   const serviceId = useMemo(() => (Array.isArray(id) ? id[0] : id), [id])
-  const { userQuery } = useUser()
+  const { userQuery } = useUserMe()
   const {
     bookReservation,
     cancelReservation,
@@ -59,7 +61,7 @@ export default function Page() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Serviço</p>
-            <p className="text-lg font-semibold text-foreground">{serviceId}</p>
+            <p className="text-lg font-semibold text-foreground">{reservation?.service.name ?? serviceId}</p>
           </div>
           <Badge variant="secondary">Reserva</Badge>
         </div>
@@ -79,8 +81,9 @@ export default function Page() {
               {reservation?.status ?? "Pendente"}
             </p>
             {reservation?.id && (
-              <p className="text-xs text-muted-foreground">ID da reserva: {reservation.id}</p>
+              <p className="text-xs text-muted-foreground">reserva: {reservation.service.name}</p>
             )}
+            
           </div>
         </div>
 
@@ -90,7 +93,7 @@ export default function Page() {
           <Button
             className="flex-1"
             onClick={handleBook}
-            disabled={isBooking || userQuery.isLoading}
+            disabled={isBooking || userQuery.isLoading || isCancelling}
           >
             {isBooking ? "A reservar..." : "Reservar agora"}
           </Button>
@@ -109,10 +112,13 @@ export default function Page() {
           <div className="rounded-md border bg-muted/40 p-4 space-y-2">
             <p className="text-sm font-semibold text-foreground">Resumo</p>
             <p className="text-sm text-muted-foreground">
-              Reserva confirmada para o serviço {reservation.serviceId ?? serviceId}.
+              Reserva confirmada para o serviço {reservation.service.name}.
+            </p>
+            <p>
+              Descrição: <strong>{reservation.service.description}</strong>
             </p>
             {reservation.createdAt && (
-              <p className="text-xs text-muted-foreground">Criada em: {reservation.createdAt}</p>
+              <p className="text-xs text-muted-foreground">Criada em: {formatDate(reservation.createdAt)}</p>
             )}
           </div>
         )}
