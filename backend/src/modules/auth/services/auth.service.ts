@@ -172,7 +172,7 @@ export class AuthService {
         },
         {
           secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
-          // TODO: ajustar tempo de expiração
+          // TODO: ajustar tempo de expiração no futuro
           expiresIn: '3d',
         },
       );
