@@ -1,0 +1,156 @@
+"use client";
+
+import { useState } from "react";
+import { Plus, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import useUser from "@/hooks/use-user";
+import { Dialog } from "@/components/ui/dialog";
+import {
+  UpdateBalance,
+  UpdateBalanceForm,
+} from "@/components/balance/update-balance";
+import { toast } from "sonner";
+
+export function PageTransaction() {
+  const [isRunning, setIsRunning] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [step, setStep] = useState<"idle" | "running" | "success" | "rollback">(
+    "idle"
+  );
+  const { userQuery } = useUser();
+  const [clientBalance, setClientBalance] = useState(0);
+  const [providerBalance, setProviderBalance] = useState(800);
+
+
+  const formatBalance = (balance: string) => {
+    const amount = parseFloat(balance);
+    if (isNaN(amount)) {
+      return "0 Kz";
+    } else {
+      return `${amount.toFixed(2)} Kz`;
+    }
+  };
+
+  const handleCloseUpdateBalance = () => {
+    setIsOpen(false);
+  };
+
+  const handleSuccessUpdateBalance = (data: UpdateBalanceForm) => {
+    setClientBalance(
+      data.amount ? clientBalance + parseFloat(data.amount) : clientBalance
+    );
+    setIsSuccess(true);
+    toast.success("Saldo atualizado com sucesso!");
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleCloseUpdateBalance}>
+      <div className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {/* Client Side */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-foreground">
+              {userQuery.data?.name}
+            </h3>
+            <div className="p-6 rounded-lg bg-blue-500/10 border border-blue-500/30 space-y-2">
+              <p className="text-sm text-muted-foreground">Saldo Disponível</p>
+              <p className="text-3xl font-bold text-primary transition-all duration-300">
+                {userQuery.data?.balance.toFixed(2)} Kz
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <div className="text-4xl text-muted-foreground animate-bounce">
+              <Wallet className="md:size-3/1" />
+            </div>
+          </div>
+        </div>
+
+        {/* Status Message */}
+        {isSuccess && (
+          <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-slideIn mb-6">
+            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              ✓ Saldo atualizado com Sucesso!
+            </p>
+            <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1">
+              Ambas as operações foram executadas atomicamente. Não houve
+              inconsistências de dados.
+            </p>
+          </div>
+        )}
+
+        {/* Recentes transações */}
+        <div className="space-y-3 p-4 rounded-lg bg-muted/30 mb-6">
+          <h4 className="font-semibold text-foreground text-sm">
+            Detalhes da Transação
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Serviço</p>
+              <p className="font-medium text-foreground">
+                Reparação de Encanamento
+              </p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Valor</p>
+              <p className="font-medium text-primary">75.00€</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">ID Transação</p>
+              <p className="font-medium text-foreground">TXN-2026-0001</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Data</p>
+              <p className="font-medium text-foreground">6 Jan 2026</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Hora</p>
+              <p className="font-medium text-foreground">14:23:45</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Status</p>
+              <p
+                className={`font-medium ${
+                  step === "success"
+                    ? "text-emerald-500"
+                    : step === "rollback"
+                    ? "text-destructive"
+                    : step === "running"
+                    ? "text-primary animate-pulseGlow"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {step === "idle" && "Pendente"}
+                {step === "running" && "Processando..."}
+                {step === "success" && "Concluída"}
+                {step === "rollback" && "Revertida"}
+              </p>
+            </div>
+          </div>
+        </div>
+        <UpdateBalance
+          onClose={handleCloseUpdateBalance}
+          onSuccess={handleSuccessUpdateBalance}
+          setLoading={setIsRunning}
+        />
+        {/* Controls */}
+        <div className="flex gap-3">
+          <Button
+            onClick={() => setIsOpen(true)}
+            disabled={isRunning || step === "success"}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Atualizar Saldo
+          </Button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
+export default function Page() {
+  return <PageTransaction />;
+}
