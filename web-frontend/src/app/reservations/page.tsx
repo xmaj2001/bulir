@@ -1,5 +1,3 @@
-import { SectionCards } from "@/components/section-cards";
-
 import { ReservationTable } from "@/components/reservation/reservation-table";
 
 export default function Page() {

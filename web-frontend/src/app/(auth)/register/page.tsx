@@ -145,7 +145,7 @@ const router = useRouter();
               {/* Header */}
               <div className="text-center mb-8">
                 <Link href="/" className="inline-flex items-center gap-2 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-glow">
+                  <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary to-primary/70 flex items-center justify-center shadow-glow">
                     <span className="text-primary-foreground font-bold text-2xl">
                       Q
                     </span>

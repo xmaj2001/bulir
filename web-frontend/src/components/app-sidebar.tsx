@@ -2,16 +2,13 @@
 
 import * as React from "react";
 import {
-  IconCamera,
-  IconDashboard,
-  IconFileAi,
-  IconFileDescription,
+  IconCalendar,
+  IconHistory,
   IconInnerShadowTop,
-  IconListDetails,
-  IconWallet,
+  IconLayoutDashboard,
+  IconNetwork,
 } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -23,7 +20,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Calendar, History } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 const data = {
@@ -36,70 +32,22 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: IconDashboard,
+      icon: IconLayoutDashboard,
     },
     {
       title: "Serviços",
       url: "/services",
-      icon: IconListDetails,
+      icon: IconNetwork,
     },
     {
       title: "Reservas",
       url: "/reservations",
-      icon: Calendar,
+      icon: IconCalendar,
     },
     {
       title: "Histórico",
       url: "/history",
-      icon: History,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      icon: IconHistory,
     },
   ],
 };
@@ -117,10 +65,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
+                <IconInnerShadowTop className="size-5!" />
                 <span className="text-base font-semibold">Qcena</span>
               </a>
             </SidebarMenuButton>

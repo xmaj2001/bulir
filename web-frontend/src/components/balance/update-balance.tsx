@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -89,7 +89,7 @@ export const UpdateBalance = ({
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-106.25">
       <DialogHeader>
         <DialogTitle>Atualizar Saldo</DialogTitle>
         <DialogDescription>

@@ -6,26 +6,9 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function Page() {
   const { reservations } = useClientReservations();
-  const {
-    bookReservation,
-    cancelReservation,
-    reservation,
-    isBooking,
-    isCancelling,
-  } = useReservation();
-  const statusTextColors: Record<string, string> = {
-    pending: "text-yellow-500",
-    confirmed: "text-green-500",
-    canceled: "text-red-500",
-  };
+  const { bookReservation, cancelReservation, isBooking, isCancelling } =
+    useReservation();
 
-  const statusBgColors: Record<string, string> = {
-    pending: "bg-yellow-100",
-    confirmed:
-      "bg-green-100 hover:bg-green-300/50 hover:border-green-300 duration-200 transition-colors hover:animation-bounce",
-    canceled:
-      "border-red-100 hover:bg-red-300/50 hover:border-red-300 duration-200 transition-colors",
-  };
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
@@ -42,7 +25,7 @@ export default function Page() {
                 return (
                   <div
                     key={reservation.id}
-                    className={`mb-6 p-4 border rounded-[4px] bg-gray-100`}
+                    className={`mb-6 p-4 border rounded-lg bg-gray-100`}
                   >
                     <h4 className="font-semibold text-foreground text-sm">
                       Detalhes das Reservas
@@ -89,7 +72,7 @@ export default function Page() {
                           onClick={() => cancelReservation(reservation.id)}
                           size={"sm"}
                           variant="default"
-                          className="w-[120px] text-black border border-red-200 mt-4 bg-transparent hover:bg-red-500 hover:border-red-500 shadow-none"
+                          className="w-30 text-black border border-red-200 mt-4 bg-transparent hover:bg-red-500 hover:border-red-500 shadow-none"
                         >
                           {isCancelling && reservation.id === reservation.id
                             ? "Cancelando..."

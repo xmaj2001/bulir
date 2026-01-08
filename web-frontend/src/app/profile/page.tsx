@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import {
@@ -10,28 +10,14 @@ import {
 } from "@/components/balance/update-balance";
 import { toast } from "sonner";
 import { useUserMe } from "@/hooks/use-user";
-import { formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 export function PageTransaction() {
   const [isRunning, setIsRunning] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [step, setStep] = useState<"idle" | "running" | "success" | "rollback">(
-    "idle"
-  );
   const { userQuery } = useUserMe();
   const [clientBalance, setClientBalance] = useState(0);
-  const [providerBalance, setProviderBalance] = useState(800);
-
-
-  const formatBalance = (balance: string) => {
-    const amount = parseFloat(balance);
-    if (isNaN(amount)) {
-      return "0 Kz";
-    } else {
-      return `${amount.toFixed(2)} Kz`;
-    }
-  };
 
   const handleCloseUpdateBalance = () => {
     setIsOpen(false);
@@ -57,7 +43,7 @@ export function PageTransaction() {
             <div className="p-6 rounded-lg bg-blue-500/10 border border-blue-500/30 space-y-2">
               <p className="text-sm text-muted-foreground">Saldo Disponível</p>
               <p className="text-3xl font-bold text-primary transition-all duration-300">
-                {userQuery.data?.balance.toFixed(2)} Kz
+                {formatCurrency(userQuery.data?.balance || 0)}
               </p>
             </div>
           </div>
@@ -91,21 +77,27 @@ export function PageTransaction() {
             <div>
               <p className="text-muted-foreground">Perfil</p>
               <p className="font-medium text-foreground">
-               {userQuery.data?.role === "client" ? "Cliente" : "Prestador"}
+                {userQuery.data?.role === "client" ? "Cliente" : "Prestador"}
               </p>
             </div>
             <div>
               <p className="text-muted-foreground">email</p>
-              <p className="font-medium text-primary">{userQuery.data?.email}</p>
+              <p className="font-medium text-primary">
+                {userQuery.data?.email}
+              </p>
             </div>
             <div>
               <p className="text-muted-foreground">NIF</p>
-              <p className="font-medium text-foreground">{userQuery.data?.nif}</p>
+              <p className="font-medium text-foreground">
+                {userQuery.data?.nif}
+              </p>
             </div>
-           
-            <Button variant="link" className="flex flex-col items-start p-0 w-1/5">
+
+            <Button
+              variant="link"
+              className="flex flex-col items-start p-0 w-1/5"
+            >
               <p className="text-muted-foreground">Alterar senha</p>
-              <p className="font-medium text-foreground">************</p>
             </Button>
           </div>
         </div>

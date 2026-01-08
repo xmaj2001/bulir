@@ -7,7 +7,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Service } from "@/types/service";
 import { IconMoneybag } from "@tabler/icons-react";
-import { Calendar, Plug, Plus } from "lucide-react";
+import { Calendar, Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function Page() {
@@ -67,7 +67,7 @@ export default function Page() {
                   {selectedService.name}
                 </p>
               </div>
-              <div className="p-6 rounded-[4px] hover:border-black/25 bg-blue-500/10 border border-blue-500/30 space-y-2">
+              <div className="p-6 rounded-lg hover:border-black/25 bg-blue-500/10 border border-blue-500/30 space-y-2">
                 <p className="text-sm text-muted-foreground">Valor</p>
                 <p className="text-3xl font-bold text-primary transition-all duration-300">
                   {formatCurrency(selectedService.price)}

@@ -22,10 +22,10 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
     >
       <div className="container mx-auto">
-        <div className="glass-card rounded-[4px] px-6 py-3 flex items-center justify-between ">
+        <div className="glass-card rounded-lg px-6 py-3 flex items-center justify-between ">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-glow">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary to-primary/70 flex items-center justify-center shadow-glow">
               <span className="text-primary-foreground font-bold text-xl">
                 Q
               </span>

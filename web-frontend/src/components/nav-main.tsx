@@ -59,7 +59,7 @@ export function NavMain({ items, user }: NavMainProps) {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton tooltip={item.title}>
                   <Link href={item.url} className="flex items-center gap-2">
-                    {item.icon && <item.icon className="!size-5" />}
+                    {item.icon && <item.icon className="size-5!" />}
                     <span className="group-data-[collapsible=icon]:hidden">
                       {item.title}
                     </span>

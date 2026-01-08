@@ -75,9 +75,9 @@ export function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group glass-card rounded-[4px] p-6 hover-lift cursor-pointer"
+              className="group glass-card rounded-lg p-6 hover-lift cursor-pointer"
             >
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 rounded-xl bg-linear-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
                 <feature.icon className="w-7 h-7 text-primary" />
               </div>
               <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>

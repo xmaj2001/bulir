@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/favicon.ico",
+  },
   title: "Qcena - Plataforma de Agendamento de Serviços",
   description:
     "Conectando você aos melhores prestadores de serviços com facilidade e rapidez.",

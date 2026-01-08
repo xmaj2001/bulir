@@ -64,8 +64,6 @@ export default function useServices(options: UseServicesOptions = {}) {
   return {
     services: servicesQuery.data,
     isLoading: servicesQuery.isLoading,
-    isError: servicesQuery.isError,
-    error: servicesQuery.error,
     refetch: servicesQuery.refetch,
     user: session?.user,
     ...createServiceMutation,
