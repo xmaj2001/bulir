@@ -1,4 +1,4 @@
-import { UserRole } from 'src/modules/user/entities/user.entity';
+import { UserRole } from '../../modules/user/entities/user.entity';
 
 export default interface IPayload {
   accessToken: string;

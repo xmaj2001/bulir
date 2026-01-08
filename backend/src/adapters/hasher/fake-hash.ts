@@ -1,4 +1,4 @@
-import { PasswordHasher } from 'src/adapters/hasher/password-hasher.port';
+import { PasswordHasher } from '../../adapters/hasher/password-hasher.port';
 
 // TODO: Implementar um hasher verdadeiro
 class FakePasswordHasher implements PasswordHasher {

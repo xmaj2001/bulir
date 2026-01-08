@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtServicePort } from 'src/adapters/jwt/jwt-service.port';
+import { JwtServicePort } from '../../adapters/jwt/jwt-service.port';
 
 @Injectable()
 export class FakeJwtAdapter implements JwtServicePort {
