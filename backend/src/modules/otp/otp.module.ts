@@ -3,8 +3,8 @@ import { OtpService } from './services/otp.service';
 import OtpRepository from './repository/otp.repo';
 import FakeOtpRepository from './repository/fake/fake-otp.repo';
 import { UserModule } from '../user/user.module';
-import { MailSender } from 'src/adapters/mail/mail-sender.port';
-import { GoogleScriptMailSender } from 'src/adapters/mail/google-script-mail';
+import { MailSender } from '../../adapters/mail/mail-sender.port';
+import { GoogleScriptMailSender } from '../../adapters/mail/google-script-mail';
 import PrismaOtpRepository from './repository/prisma/prisma.otp.repo';
 
 @Module({
