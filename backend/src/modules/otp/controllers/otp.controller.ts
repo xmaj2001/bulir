@@ -1,7 +1,7 @@
 import { Body, Post, Req, UseGuards } from '@nestjs/common';
 import { OtpService } from '../services/otp.service';
 import { OtpValidateInput } from '../inputs/otp-validate.input';
-import { AuthGuard } from 'src/shared/guard/auth.guard';
+import { AuthGuard } from '../../../shared/guard/auth.guard';
 import type { RequestWithUser } from 'src/shared/http/user-request';
 
 export class OtpController {

@@ -16,7 +16,7 @@ import {
 } from '../inputs/auth.input';
 import type { Request, Response } from 'express';
 import type { RequestWithUser } from 'src/shared/http/user-request';
-import { AuthGuard } from 'src/shared/guard/auth.guard';
+import { AuthGuard } from '../../../shared/guard/auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}

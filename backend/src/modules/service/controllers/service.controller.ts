@@ -16,7 +16,7 @@ import { RolesGuard } from '../../../shared/guard/roles.guard';
 import { Roles } from '../../../shared/decorator/roles.decorator';
 import { UserRole } from '../../user/entities/user.entity';
 import { UpdateServiceInput } from '../inputs/upadate-service';
-import { RequestWithUser } from 'src/shared/http/user-request';
+import { RequestWithUser } from '../../../shared/http/user-request';
 
 @Controller('services')
 export class ServiceController {

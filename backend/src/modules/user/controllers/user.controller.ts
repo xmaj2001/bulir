@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Patch,
-  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +13,7 @@ import { AuthGuard } from '../../../shared/guard/auth.guard';
 import { Roles } from '../../../shared/decorator/roles.decorator';
 import { UserRole } from '../entities/user.entity';
 import { RolesGuard } from '../../../shared/guard/roles.guard';
-import { RequestWithUser } from 'src/shared/http/user-request';
+import { RequestWithUser } from '../../../shared/http/user-request';
 import { UpdateBalanceInput } from '../inputs/update-balance-user';
 
 @Controller('users')
