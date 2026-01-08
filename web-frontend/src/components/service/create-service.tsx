@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,8 +23,7 @@ import {
   FormDescription,
   FormMessage,
 } from "../ui/form";
-import { Service } from "@/http/services/service.service";
-import { useSession } from "next-auth/react";
+import useServices from "@/hooks/use-services";
 
 const createServiceSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -47,8 +45,10 @@ export const CreateFormService = ({
   onSuccess,
   setLoading,
 }: CreateServiceProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
+  const {
+    createService,
+    isPending: isCreating,
+  } = useServices();
   const form = useForm<CreateServiceForm>({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
@@ -60,9 +60,8 @@ export const CreateFormService = ({
 
   const onSubmit = async (data: CreateServiceForm) => {
     try {
-      setIsLoading(true);
       setLoading(true);
-      const result = await Service.create(data, session?.accessToken ?? "");
+      const result = await createService(data);
 
       if (!result) {
         throw new Error("No data returned from createService");
@@ -79,7 +78,6 @@ export const CreateFormService = ({
       toast.error("Erro ao criar serviço");
       console.error(error);
     } finally {
-      setIsLoading(false);
       setLoading(false);
     }
   };
@@ -163,12 +161,12 @@ export const CreateFormService = ({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" disabled={isLoading}>
+              <Button variant="outline" disabled={isCreating}>
                 Cancelar
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Salvando..." : "Criar Serviço"}
+            <Button type="submit" disabled={isCreating}>
+              {isCreating ? "Salvando..." : "Criar Serviço"}
             </Button>
           </DialogFooter>
         </form>

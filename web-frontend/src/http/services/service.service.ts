@@ -1,11 +1,11 @@
 import { API } from "../config";
 import { Service as ServiceModel } from "@/types/service";
 
-interface ServiceCreate {
+export type ServiceCreate = {
   name: string;
   description: string;
   price: number;
-}
+};
 
 export const Service = {
   async create(

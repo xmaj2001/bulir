@@ -22,10 +22,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Loader2, MoreVertical, RefreshCw } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { useState } from "react";
 import { Service } from "@/types/service";
 import useServices from "@/hooks/use-services";
+import { toast } from "sonner";
 
 interface TableRowProps {
   data: Service;
@@ -36,7 +37,11 @@ function TableRowC({ data, onClick }: TableRowProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <TableRow className="hover:cursor-pointer" key={data.id} onClick={() => onClick(data)}>
+    <TableRow
+      className="hover:cursor-pointer"
+      key={data.id}
+      onClick={() => onClick(data)}
+    >
       <TableCell className="font-medium">
         <span className="text-sm">#{data.id.slice(0, 8).toUpperCase()}</span>
       </TableCell>
@@ -44,7 +49,7 @@ function TableRowC({ data, onClick }: TableRowProps) {
         <span className="text-sm">{data.name}</span>
       </TableCell>
       <TableCell>
-        <span className="font-semibold">{data.price.toFixed(2)} Kz</span>
+        <span className="font-semibold">{formatCurrency(data.price)}</span>
       </TableCell>
       <TableCell>
         <span className="text-sm">{data.reservations.length || 0}</span>
@@ -61,10 +66,17 @@ function TableRowC({ data, onClick }: TableRowProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => onClick(data)}
+              onClick={() => toast.info("Em breve!")}
               className="text-destructive"
             >
-              Ver
+              Editar
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => toast.info("Em breve!")}
+              className="text-destructive"
+            >
+              Apagar
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -123,7 +135,6 @@ export function ServiceTable({ onRowClick }: ServiceTableProps) {
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
         </Button>
-       
       </CardHeader>
 
       <CardContent>

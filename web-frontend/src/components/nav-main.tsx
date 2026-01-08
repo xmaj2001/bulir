@@ -1,26 +1,31 @@
-"use client"
+"use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import Link from "next/link"
+} from "@/components/ui/sidebar";
+import Link from "next/link";
 
-export function NavMain({
-  items,
-}: {
+interface NavMainProps {
   items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
+    title: string;
+    url: string;
+    icon?: Icon;
+  }[];
+  user?: {
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export function NavMain({ items, user }: NavMainProps) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -43,20 +48,28 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-               <Link href={item.url} className="flex items-center gap-2">
-                  {item.icon && <item.icon className="!size-5" />}
-                  <span className="group-data-[collapsible=icon]:hidden">
-                    {item.title}
-                  </span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            if(user?.role === "client" && item.title === "Dashboard") {
+              return null;
+            }
+            else if(user?.role === "provider" && (item.title === "Serviços" || item.title === "Reservas" || item.title === "Histórico")) {
+              return null;
+            }
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton tooltip={item.title}>
+                  <Link href={item.url} className="flex items-center gap-2">
+                    {item.icon && <item.icon className="!size-5" />}
+                    <span className="group-data-[collapsible=icon]:hidden">
+                      {item.title}
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogIn } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const navItems = [
   { label: "Início", href: "/" },
   { label: "Serviços", href: "/services" },
-  { label: "Como Funciona", href: "/#how-it-works" },
 ];
 
 export function Navbar() {

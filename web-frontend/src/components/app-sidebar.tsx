@@ -102,17 +102,16 @@ const data = {
       ],
     },
   ],
-
-
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, status} = useSession();
-  if(status !== "authenticated") {
+  const { data: session, status } = useSession();
+  if (status !== "authenticated") {
     return null;
   }
+
   return (
-    <Sidebar collapsible="icon"  {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -122,16 +121,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">
-                  Qcena
-                </span>
+                <span className="text-base font-semibold">Qcena</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} user={session?.user} />
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
