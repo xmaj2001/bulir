@@ -4,10 +4,15 @@ import SessionRepository from '../repository/session.repo';
 import FakeSessionRepository from '../repository/fake/fake.session';
 import { PasswordHasher } from '../../../adapters/hasher/password-hasher.port';
 import FakePasswordHasher from '../../../adapters/hasher/fake-hash';
-import { UserModule } from '../../user/user.module';
 import { AuthRegisterInput } from '../inputs/auth.input';
 import { UserRole } from '../../user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
+import OtpRepository from '../../otp/repository/otp.repo';
+import FakeOtpRepository from '../../otp/repository/fake/fake-otp.repo';
+import UserRepository from '../../user/repository/user.repo';
+import FakeUserRepository from '../../user/repository/fake.user.repo';
+import { OtpService } from '../../otp/services/otp.service';
+import { MailSender } from '../../../adapters/mail/mail-sender.port';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -24,9 +29,31 @@ describe('AuthService', () => {
           provide: PasswordHasher,
           useClass: FakePasswordHasher,
         },
+        {
+          provide: OtpRepository,
+          useClass: FakeOtpRepository,
+        },
+        {
+          provide: UserRepository,
+          useClass: FakeUserRepository,
+        },
+        {
+          provide: OtpService,
+          useValue: {
+            generate: jest.fn(),
+            validate: jest.fn(),
+            sendOtp: jest.fn(),
+            validateOtp: jest.fn(),
+          },
+        },
+        {
+          provide: MailSender,
+          useValue: {
+            sendOtp: jest.fn(),
+          },
+        },
       ],
       imports: [
-        UserModule,
         JwtModule.register({
           global: true,
         }),

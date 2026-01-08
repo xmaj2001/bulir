@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Put,
   Req,
   UseGuards,
@@ -34,14 +35,15 @@ export class UserController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  @Get(':id')
-  getById(@Param('id') id: string) {
+  @Get()
+  getById(@Req() req: RequestWithUser) {
+    const id = req.user?.sub ?? '';
     return this.service.findById(id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  @Put('/balance')
+  @Patch('/balance')
   updateBalance(
     @Body() input: UpdateBalanceInput,
     @Req() req: RequestWithUser,
@@ -52,8 +54,17 @@ export class UserController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  @Delete(':id')
-  deleteById(@Param('id') id: string) {
+  @Delete()
+  deleteById(@Req() req: RequestWithUser) {
+    const id = req.user?.sub ?? '';
     return this.service.delete(id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
+  @Get('me')
+  me(@Req() req: RequestWithUser) {
+    const userId = req.user?.sub ?? '';
+    return this.service.me(userId);
   }
 }

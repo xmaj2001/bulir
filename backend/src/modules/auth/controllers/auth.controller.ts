@@ -39,6 +39,7 @@ export class AuthController {
 
     return res.send({
       accessToken: result.accessToken,
+      user: result.user,
     });
   }
 
@@ -64,7 +65,7 @@ export class AuthController {
     return this.service.changePassword(userId, body);
   }
 
-  @Post('request-account-activation')
+  @Post('account-activation')
   @UseGuards(AuthGuard)
   requestAccountActivation(
     @Body() body: AuthActivateAccountInput,
@@ -74,7 +75,7 @@ export class AuthController {
     return this.service.activateAccount(userId, body);
   }
 
-  @Post('request-password-change')
+  @Post('password-change')
   @UseGuards(AuthGuard)
   requestPasswordChange(@Req() req: RequestWithUser) {
     const userId = req.user?.sub || '';

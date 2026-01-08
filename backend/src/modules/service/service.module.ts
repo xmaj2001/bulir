@@ -12,8 +12,8 @@ import PrismaServiceRepository from './repository/prisma/prisma.service.repo';
     ServiceService,
     {
       provide: ServiceRepository,
-      // useClass: FakeServiceRepository,
       useClass: PrismaServiceRepository,
+      // useClass: FakeServiceRepository,
     },
   ],
   imports: [UserModule],

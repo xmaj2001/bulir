@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 export enum OtpPurpose {
   ACCOUNT_ACTIVATION = 'account_activation',
   CHANGE_PASSWORD = 'change_password',
+  VERIFY_EMAIL = 'verify_email',
 }
 
 export default class OtpEntity {

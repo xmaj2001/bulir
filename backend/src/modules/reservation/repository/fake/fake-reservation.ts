@@ -5,7 +5,9 @@ import ReservationEntity, {
 import ReservationRepository from '../reservation.repo';
 
 @Injectable()
-export default class FakeReservationRepository implements ReservationRepository {
+export default class FakeReservationRepository
+  implements ReservationRepository
+{
   private reservations: ReservationEntity[] = [];
 
   async create(reservation: ReservationEntity) {
@@ -21,6 +23,13 @@ export default class FakeReservationRepository implements ReservationRepository 
     return this.reservations.find((r) => r.id === id) || null;
   }
 
+  async findByServiceId(serviceId: string, clientId: string) {
+    await Promise.resolve();
+    return this.reservations.filter(
+      (r) => r.serviceId === serviceId && r.clientId === clientId,
+    );
+  }
+
   async findByClientId(clientId: string) {
     await Promise.resolve();
     return this.reservations.filter((r) => r.clientId === clientId);
@@ -28,11 +37,12 @@ export default class FakeReservationRepository implements ReservationRepository 
 
   async cancel(id: string) {
     const reservation = await this.findById(id);
-    if (!reservation) return;
+    if (!reservation) return false;
     reservation.status = ReservationStatus.CANCELED;
     reservation.canceledAt = new Date();
     this.reservations = this.reservations.map((r) =>
       r.id === id ? reservation : r,
     );
+    return true;
   }
 }

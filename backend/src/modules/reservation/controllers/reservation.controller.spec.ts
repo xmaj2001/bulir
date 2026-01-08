@@ -8,6 +8,7 @@ import FakeServiceRepository from '../../service/repository/fake.service.repo';
 import UserRepository from '../../user/repository/user.repo';
 import FakeUserRepository from '../../user/repository/fake.user.repo';
 import { JwtModule } from '@nestjs/jwt';
+import { PrismaService } from 'nestjs-prisma';
 
 describe('ReservationController', () => {
   let controller: ReservationController;
@@ -17,6 +18,7 @@ describe('ReservationController', () => {
       controllers: [ReservationController],
       providers: [
         ReservationService,
+        PrismaService,
         {
           provide: ReservationRepository,
           useClass: FakeReservationRepository,
@@ -36,7 +38,7 @@ describe('ReservationController', () => {
     controller = module.get<ReservationController>(ReservationController);
   });
 
-  it('should be defined', () => {
+  it('Deve estar definido', () => {
     expect(controller).toBeDefined();
   });
 });

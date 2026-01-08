@@ -21,9 +21,9 @@ export default class UserEntity {
   public updatedAt: Date;
 
   constructor(partial?: Partial<UserEntity>) {
-    this.balance = 0;
+    this.balance = 10000;
     this.password = 'hashed-123456';
-    this.status = UserAcountStatus.ACTIVE;
+    this.status = UserAcountStatus.PENDING;
     this.role = UserRole.CLIENT;
     Object.assign(this, partial);
   }

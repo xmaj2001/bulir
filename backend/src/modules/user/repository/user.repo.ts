@@ -10,6 +10,7 @@ export default abstract class UserRepository {
     amount: number,
     tx?: any,
   ): Promise<UserEntity | null>;
+  abstract me(userId: string): Promise<UserEntity | null>;
   abstract update(user: UserEntity): Promise<UserEntity>;
   abstract debitBalance(
     userId: string,

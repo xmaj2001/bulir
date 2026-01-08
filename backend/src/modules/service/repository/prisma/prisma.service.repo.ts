@@ -7,6 +7,19 @@ import ServiceRepository from '../service.repo';
 export default class PrismaServiceRepository implements ServiceRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapToEntity(entity: any): ServiceEntity {
+    return new ServiceEntity({
+      name: entity.name,
+      description: entity.description,
+      price: entity.price,
+      providerId: entity.providerId,
+      id: entity.id,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      reservations: entity.reservations,
+    });
+  }
+
   async create(service: ServiceEntity): Promise<ServiceEntity> {
     const result = await this.prisma.service.create({
       data: {
@@ -18,29 +31,19 @@ export default class PrismaServiceRepository implements ServiceRepository {
         createdAt: service.createdAt,
         updatedAt: service.updatedAt,
       },
+      include: { reservations: true },
     });
-    return new ServiceEntity(
-      result.name,
-      result.description,
-      result.price,
-      result.providerId,
-      result.id,
-    );
+    return this.mapToEntity(result);
   }
 
   async findById(id: string): Promise<ServiceEntity | null> {
     const prismaService = await this.prisma.service.findUnique({
       where: { id },
+      include: { reservations: true },
     });
 
     const serviceEntity = prismaService
-      ? new ServiceEntity(
-          prismaService.name,
-          prismaService.description,
-          prismaService.price,
-          prismaService.providerId,
-          prismaService.id,
-        )
+      ? this.mapToEntity(prismaService)
       : null;
 
     return serviceEntity;
@@ -52,11 +55,9 @@ export default class PrismaServiceRepository implements ServiceRepository {
       skip,
       take: items,
       orderBy: { createdAt: 'desc' },
+      include: { reservations: true },
     });
-    const serviceEntities = prismaServices.map(
-      (s) =>
-        new ServiceEntity(s.name, s.description, s.price, s.providerId, s.id),
-    );
+    const serviceEntities = prismaServices.map((s) => this.mapToEntity(s));
     return serviceEntities;
   }
 
@@ -64,11 +65,9 @@ export default class PrismaServiceRepository implements ServiceRepository {
     const prismaServices = await this.prisma.service.findMany({
       where: { providerId },
       orderBy: { createdAt: 'desc' },
+      include: { reservations: true },
     });
-    const serviceEntities = prismaServices.map(
-      (s) =>
-        new ServiceEntity(s.name, s.description, s.price, s.providerId, s.id),
-    );
+    const serviceEntities = prismaServices.map((s) => this.mapToEntity(s));
     return serviceEntities;
   }
 
@@ -81,14 +80,9 @@ export default class PrismaServiceRepository implements ServiceRepository {
         price: service.price,
         updatedAt: new Date(),
       },
+      include: { reservations: true },
     });
-    return new ServiceEntity(
-      prismaService.name,
-      prismaService.description,
-      prismaService.price,
-      prismaService.providerId,
-      prismaService.id,
-    );
+    return this.mapToEntity(prismaService);
   }
 
   async delete(id: string): Promise<void> {

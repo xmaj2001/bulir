@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 
 export enum ReservationStatus {
   CONFIRMED = 'confirmed',
+  PENDING = 'pending',
   CANCELED = 'canceled',
 }
 
@@ -15,6 +16,7 @@ export default class ReservationEntity {
   public updatedAt: Date;
   public price: number;
   public canceledAt?: Date;
+  public service?: any;
   constructor(partial: Partial<ReservationEntity>) {
     this.id = partial.id || randomUUID();
     this.price = partial.price || 0;

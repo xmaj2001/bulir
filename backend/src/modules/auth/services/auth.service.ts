@@ -19,8 +19,9 @@ import UserEntity, {
 } from '../../user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import { OtpService } from 'src/modules/otp/services/otp.service';
-import { OtpPurpose } from 'src/modules/otp/entities/otp.entity';
+import { OtpService } from '../../otp/services/otp.service';
+import { OtpPurpose } from '../../otp/entities/otp.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -49,8 +50,7 @@ export class AuthService {
     newUser.email = input.email;
     newUser.nif = input.nif;
     newUser.role = input.role as UserRole;
-    newUser.balance = 0;
-    newUser.status = UserAcountStatus.PENDING;
+    newUser.status = UserAcountStatus.ACTIVE;
     newUser.setPassword(passwordHash);
     newUser.createdAt = new Date();
     newUser.updatedAt = new Date();
@@ -61,7 +61,7 @@ export class AuthService {
       id: createdUser.id,
       name: createdUser.name,
       email: createdUser.email,
-      type: createdUser.role,
+      role: createdUser.role,
     };
   }
 
@@ -92,8 +92,20 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException(`Credenciais inválidas`);
     }
+
+    // if (existUser.status !== UserAcountStatus.ACTIVE) {
+    //   throw new UnauthorizedException(`Conta de usuário não está ativa`);
+    // }
+
     const tokens = this.generateTokens(existUser);
-    return { ...tokens, active: existUser.status === UserAcountStatus.ACTIVE };
+    const userPublicData = {
+      id: existUser.id,
+      name: existUser.name,
+      email: existUser.email,
+      nif: existUser.nif,
+      role: existUser.role,
+    };
+    return { ...tokens, user: userPublicData };
   }
 
   async requestPasswordChange(userId: string): Promise<void> {
@@ -160,12 +172,14 @@ export class AuthService {
         },
         {
           secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
-          expiresIn: '15m',
+          // TODO: ajustar tempo de expiração
+          expiresIn: '3d',
         },
       );
 
       return { accessToken: newAccessToken };
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error: any) {
       throw new UnauthorizedException('Refresh token inválido ou expirado');
     }
   }
@@ -174,10 +188,12 @@ export class AuthService {
     const payload = { sub: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
-      expiresIn: '15m',
+      // TODO: ajustar tempo de expiração
+      expiresIn: '3d',
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+      // TODO: ajustar tempo de expiração
       expiresIn: '7d',
     });
     return { accessToken, refreshToken };

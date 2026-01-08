@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -9,16 +8,21 @@ import { OtpModule } from './modules/otp/otp.module';
 import { PrismaModule } from 'nestjs-prisma';
 import { AppController } from './modules/app/app.controller';
 import { AppService } from './modules/app/app.service';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 50,
+        },
+      ],
+    }),
     PrismaModule.forRoot({
       isGlobal: true,
-    }),
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 5 * 60 * 1000, // 5 minutos em milissegundos
-      max: 100, // máximo de itens em cache
     }),
     JwtModule.register({
       global: true,
@@ -31,6 +35,12 @@ import { AppService } from './modules/app/app.service';
     OtpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -17,12 +17,12 @@ export class ServiceService {
     if (!provider) {
       throw new NotFoundException(`O prestador não foi encontrado`);
     }
-    const newService = new ServiceEntity(
-      input.name,
-      input.description,
-      input.price,
-      providerId,
-    );
+    const newService = new ServiceEntity({
+      name: input.name,
+      description: input.description,
+      price: input.price,
+      providerId: provider.id,
+    });
     return await this.repo.create(newService);
   }
 
@@ -34,15 +34,18 @@ export class ServiceService {
     return service;
   }
 
-  async findbyProviderId(providerId: string) {
-    const provider = await this.user.findById(providerId);
-    if (!provider) {
-      throw new NotFoundException(`O prestador não foi encontrado`);
+  async findPaginated(
+    page: number = 1,
+    items: number = 10,
+    idProvider?: string,
+  ) {
+    if (idProvider) {
+      const provider = await this.user.findById(idProvider);
+      if (!provider) {
+        throw new NotFoundException(`O prestador não foi encontrado`);
+      }
+      return await this.repo.findByProviderId(idProvider, page, items);
     }
-    return await this.repo.findByProviderId(providerId);
-  }
-
-  async findPaginated(page: number = 1, items: number = 10) {
     return await this.repo.findPaginated(page, items);
   }
 

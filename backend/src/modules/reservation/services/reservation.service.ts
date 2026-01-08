@@ -7,9 +7,12 @@ import {
 import ReservationRepository from '../repository/reservation.repo';
 import ServiceRepository from '../../service/repository/service.repo';
 import UserRepository from '../../user/repository/user.repo';
-import ReservationEntity from '../entities/reservation.entity';
+import ReservationEntity, {
+  ReservationStatus,
+} from '../entities/reservation.entity';
 import { CreateReservationInput } from '../inputs/create-reservation';
 import { PrismaService } from 'nestjs-prisma';
+import { UserRole } from '../../user/entities/user.entity';
 
 @Injectable()
 export class ReservationService {
@@ -27,13 +30,23 @@ export class ReservationService {
     const client = await this.userRepo.findById(clientId);
     if (!client) throw new NotFoundException('Cliente não encontrado');
 
-    if (service.providerId === client.id)
+    if (client.role !== UserRole.CLIENT)
       throw new ConflictException('Não podes reservar o teu próprio serviço');
 
     if (service.price > client.balance)
       throw new ConflictException(
         'Saldo insuficiente para reservar este serviço',
       );
+
+    const existingReservations = await this.repo.findByServiceId(
+      service.id,
+      client.id,
+    );
+
+    if (existingReservations.length > 0) {
+      throw new ConflictException('Já tens uma reserva para este serviço');
+    }
+
     const createdReservation = await this.prisma.$transaction(async (tx) => {
       const updatedClient = await this.userRepo.debitBalance(
         client.id,
@@ -44,6 +57,16 @@ export class ReservationService {
         throw new ConflictException(
           'Falha ao debitar o saldo. Saldo insuficiente.',
         );
+      }
+
+      const updatedProvider = await this.userRepo.updateBalance(
+        service.providerId,
+        service.price,
+        tx,
+      );
+
+      if (!updatedProvider) {
+        throw new ConflictException('Falha ao creditar o provedor.');
       }
 
       const reservation = new ReservationEntity({
@@ -58,7 +81,7 @@ export class ReservationService {
 
       return createdReservation;
     });
-    return createdReservation;
+    return { ...createdReservation, service };
   }
 
   async findById(id: string) {
@@ -82,6 +105,10 @@ export class ReservationService {
     const exitClient = await this.userRepo.findById(userId);
     if (!exitClient) throw new NotFoundException('Usuário não encontrado');
 
+    const provider = await this.userRepo.findById(reservation.providerId);
+    if (!provider)
+      throw new NotFoundException('Provedor da reserva não encontrado');
+
     if (
       reservation.clientId !== exitClient.id &&
       reservation.providerId !== exitClient.id
@@ -91,6 +118,41 @@ export class ReservationService {
       );
     }
 
-    await this.repo.cancel(reservationId);
+    if (reservation.status === ReservationStatus.CANCELED) {
+      throw new ConflictException('Reserva já está cancelada');
+    }
+    if (provider.balance < reservation.price) {
+      throw new ConflictException(
+        'Saldo do provedor insuficiente para o reembolso',
+      );
+    }
+
+    const canceledReservation = await this.prisma.$transaction(async (tx) => {
+      const updatedReservation = await this.repo.cancel(reservationId, tx);
+      if (!updatedReservation) {
+        throw new Error('Erro ao cancelar a reserva');
+      }
+
+      const client = await this.userRepo.updateBalance(
+        reservation.clientId,
+        reservation.price,
+        tx,
+      );
+      if (!client) {
+        throw new Error('Erro ao creditar o cliente');
+      }
+
+      const provider = await this.userRepo.debitBalance(
+        reservation.providerId,
+        reservation.price,
+        tx,
+      );
+      if (!provider) {
+        throw new Error('Erro ao debitar o provedor');
+      }
+
+      return updatedReservation;
+    });
+    return canceledReservation;
   }
 }

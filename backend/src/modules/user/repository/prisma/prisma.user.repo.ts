@@ -4,8 +4,8 @@ import { PrismaService } from 'nestjs-prisma';
 import UserEntity, {
   UserAcountStatus,
   UserRole,
-} from 'src/modules/user/entities/user.entity';
-import UserRepository from 'src/modules/user/repository/user.repo';
+} from '../../entities/user.entity';
+import UserRepository from '../../repository/user.repo';
 
 @Injectable()
 export default class PrismaUserRepository implements UserRepository {
@@ -62,6 +62,14 @@ export default class PrismaUserRepository implements UserRepository {
   async findByNif(nif: string): Promise<UserEntity | null> {
     const user = await this.prisma.user.findUnique({
       where: { nif },
+    });
+    if (!user) return null;
+    return this.mapToUserEntity(user);
+  }
+
+  async me(userId: string): Promise<UserEntity | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
     });
     if (!user) return null;
     return this.mapToUserEntity(user);

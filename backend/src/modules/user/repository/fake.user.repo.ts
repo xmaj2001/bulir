@@ -11,7 +11,7 @@ export default class FakeUserRepository implements UserRepository {
       email: 'xma.jose2001@gmail.com',
       nif: '123456789',
       role: UserRole.CLIENT,
-      balance: 8000,
+      balance: 20000,
       createdAt: new Date(),
       updatedAt: new Date(),
     }),
@@ -21,17 +21,27 @@ export default class FakeUserRepository implements UserRepository {
       email: 'lucas@x.com',
       nif: '987654321',
       role: UserRole.PROVIDER,
-      balance: 2000,
+      balance: 10000,
       createdAt: new Date(),
       updatedAt: new Date(),
     }),
     new UserEntity({
       id: '3',
-      name: 'Provider One',
-      email: 'provider1@x.com',
+      name: 'Max One',
+      email: 'max@x.com',
       nif: '111222333',
       role: UserRole.PROVIDER,
-      balance: 3000,
+      balance: 10000,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }),
+    new UserEntity({
+      id: '4',
+      name: 'Poor User',
+      email: 'poor@x.com',
+      nif: '444555666',
+      role: UserRole.CLIENT,
+      balance: 1000,
       createdAt: new Date(),
       updatedAt: new Date(),
     }),
@@ -41,6 +51,11 @@ export default class FakeUserRepository implements UserRepository {
     await new Promise((resolve) => setTimeout(resolve, 100));
     this.users.push(user);
     return user;
+  }
+
+  async me(userId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return this.users.find((user) => user.id === userId) ?? null;
   }
 
   async findById(id: string) {

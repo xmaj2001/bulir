@@ -5,8 +5,9 @@ import FakeOtpRepository from '../repository/fake/fake-otp.repo';
 import { OtpPurpose } from '../entities/otp.entity';
 import { MailSender } from '../../../adapters/mail/mail-sender.port';
 import { GoogleScriptMailSender } from '../../../adapters/mail/google-script-mail';
-import { UserModule } from '../../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import UserRepository from '../../user/repository/user.repo';
+import FakeUserRepository from '../../user/repository/fake.user.repo';
 
 describe('OtpService', () => {
   let service: OtpService;
@@ -23,8 +24,12 @@ describe('OtpService', () => {
           provide: MailSender,
           useClass: GoogleScriptMailSender,
         },
+        {
+          provide: UserRepository,
+          useClass: FakeUserRepository,
+        },
       ],
-      imports: [UserModule, JwtModule.register({ global: true })],
+      imports: [JwtModule.register({ global: true })],
     }).compile();
 
     service = module.get<OtpService>(OtpService);

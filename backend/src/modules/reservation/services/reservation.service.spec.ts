@@ -6,6 +6,7 @@ import ServiceRepository from '../../service/repository/service.repo';
 import FakeServiceRepository from '../../service/repository/fake.service.repo';
 import UserRepository from '../../user/repository/user.repo';
 import FakeUserRepository from '../../user/repository/fake.user.repo';
+import { PrismaService } from 'nestjs-prisma';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -14,6 +15,7 @@ describe('ReservationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReservationService,
+        PrismaService,
         {
           provide: ReservationRepository,
           useClass: FakeReservationRepository,
@@ -37,23 +39,27 @@ describe('ReservationService', () => {
   });
 
   it('Deve criar uma reserva', async () => {
-    const reservation = await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    const reservation = await service.create(
+      {
+        serviceId: '2',
+      },
+      '1',
+    );
 
     expect(reservation).toHaveProperty('id');
-    expect(reservation.serviceId).toBe('1');
-    expect(reservation.clientId).toBe('2');
-    expect(reservation.providerId).toBe('1');
+    expect(reservation.serviceId).toBe('2');
+    expect(reservation.clientId).toBe('1');
+    expect(reservation.providerId).toBe('2');
     expect(reservation.status).toBe('confirmed');
   });
 
   it('Deve cancelar uma reserva', async () => {
-    const reservation = await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    const reservation = await service.create(
+      {
+        serviceId: '2',
+      },
+      '1',
+    );
 
     await service.cancel(reservation.id, reservation.clientId);
     const canceledReservation = await service.findById(reservation.id);
@@ -63,10 +69,12 @@ describe('ReservationService', () => {
   });
 
   it('Deve buscar uma reserva por ID', async () => {
-    const reservation = await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    const reservation = await service.create(
+      {
+        serviceId: '2',
+      },
+      '1',
+    );
 
     const foundReservation = await service.findById(reservation.id);
     expect(foundReservation).toBeDefined();
@@ -74,38 +82,46 @@ describe('ReservationService', () => {
   });
 
   it('Deve buscar reservas por ID do cliente', async () => {
-    await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    await service.create(
+      {
+        serviceId: '2',
+      },
+      '1',
+    );
 
-    await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    await service.create(
+      {
+        serviceId: '3',
+      },
+      '1',
+    );
 
-    const reservations = await service.findByClientId('2');
+    const reservations = await service.findByClientId('1');
     expect(reservations).toBeDefined();
     expect(reservations.length).toBe(2);
-    expect(reservations[0].clientId).toBe('2');
-    expect(reservations[1].clientId).toBe('2');
+    expect(reservations[0].clientId).toBe('1');
+    expect(reservations[1].clientId).toBe('1');
   });
 
   it('Deve lançar erro ao tentar reservar o próprio serviço', async () => {
     await expect(
-      service.create({
-        serviceId: '1',
-        clientId: '1',
-      }),
+      service.create(
+        {
+          serviceId: '2',
+        },
+        '2',
+      ),
     ).rejects.toThrow('Não podes reservar o teu próprio serviço');
   });
 
   it('Deve lançar erro ao tentar reservar com saldo insuficiente', async () => {
     await expect(
-      service.create({
-        serviceId: '2',
-        clientId: '3',
-      }),
+      service.create(
+        {
+          serviceId: '2',
+        },
+        '4',
+      ),
     ).rejects.toThrow('Saldo insuficiente para reservar este serviço');
   });
 
@@ -122,10 +138,12 @@ describe('ReservationService', () => {
   });
 
   it('Deve lançar erro ao cancelar reserva por usuário não autorizado', async () => {
-    const reservation = await service.create({
-      serviceId: '1',
-      clientId: '2',
-    });
+    const reservation = await service.create(
+      {
+        serviceId: '2',
+      },
+      '1',
+    );
 
     await expect(service.cancel(reservation.id, '3')).rejects.toThrow(
       'Não tens permissão para cancelar esta reserva',

@@ -19,7 +19,37 @@ export class UserService {
     if (!result) {
       throw new Error('Erro ao atualizar o saldo do usuário');
     }
-    return result;
+    return {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      nif: result.nif,
+      role: result.role,
+      balance: result.balance,
+      status: result.status,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
+  }
+
+  async me(userId: string) {
+    const result = await this.repo.me(userId);
+    if (!result) {
+      throw new NotFoundException(
+        `O usuário com id ${userId} não foi encontrado`,
+      );
+    }
+    return {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      nif: result.nif,
+      role: result.role,
+      balance: result.balance,
+      status: result.status,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
   async findById(id: string) {

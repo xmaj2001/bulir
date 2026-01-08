@@ -10,5 +10,10 @@ export default abstract class ReservationRepository {
 
   abstract findByClientId(clientId: string): Promise<ReservationEntity[]>;
 
-  abstract cancel(id: string): Promise<void>;
+  abstract findByServiceId(
+    serviceId: string,
+    clientId: string,
+  ): Promise<ReservationEntity[]>;
+
+  abstract cancel(id: string, tx?: any): Promise<boolean>;
 }

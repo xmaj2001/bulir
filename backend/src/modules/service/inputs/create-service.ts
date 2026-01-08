@@ -1,9 +1,7 @@
 import { Type } from 'class-transformer';
 import {
-  IsNegative,
   IsNotEmpty,
   IsPositive,
-  isPositive,
   IsString,
   Max,
   MaxLength,

@@ -45,17 +45,19 @@ export class ServiceController {
     return this.service.findById(id);
   }
 
-  @Get('provider/:providerId')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  getByProviderId(@Param('providerId') providerId: string) {
-    return this.service.findbyProviderId(providerId);
-  }
-
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.PROVIDER, UserRole.CLIENT)
-  getAll(@Query('page') page: number, @Query('items') items: number) {
-    return this.service.findPaginated(page, items);
+  getAll(
+    @Query('page') page: number,
+    @Query('items') items: number,
+    @Req() req: RequestWithUser,
+  ) {
+    const isProvidor = req.user?.role === UserRole.PROVIDER;
+    return this.service.findPaginated(
+      page,
+      items,
+      isProvidor ? req.user?.sub : undefined,
+    );
   }
 }

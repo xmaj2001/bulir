@@ -4,6 +4,7 @@ import { UserService } from '../services/user.service';
 import UserRepository from '../repository/user.repo';
 import FakeUserRepository from '../repository/fake.user.repo';
 import { JwtModule } from '@nestjs/jwt';
+import { RequestWithUser } from 'src/shared/http/user-request';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -41,13 +42,15 @@ describe('UserController', () => {
   });
 
   it('Deve encontrar um usuário pelo ID', async () => {
-    const user = await controller.getById('1');
+    const req = { user: { sub: '1' } } as RequestWithUser;
+    const user = await controller.getById(req);
     expect(user).toBeDefined();
     expect(user.name).toBe('Max Mustermann');
   });
 
   it('Deve lançar NotFoundException ao buscar usuário por ID inexistente', async () => {
-    await expect(controller.getById('999')).rejects.toThrow(
+    const req = { user: { sub: '999' } } as RequestWithUser;
+    await expect(controller.getById(req)).rejects.toThrow(
       'O usuário com id 999 não foi encontrado',
     );
   });
@@ -65,29 +68,37 @@ describe('UserController', () => {
   });
 
   it('Deve deletar um usuário existente', async () => {
-    await expect(controller.deleteById('2')).resolves.toBeUndefined();
-    await expect(controller.getById('2')).rejects.toThrow(
+    await expect(
+      controller.deleteById({ user: { sub: '2' } } as RequestWithUser),
+    ).resolves.toBeUndefined();
+    const req = { user: { sub: '2' } } as RequestWithUser;
+    await expect(controller.getById(req)).rejects.toThrow(
       'O usuário com id 2 não foi encontrado',
     );
   });
 
   it('Deve lançar NotFoundException ao deletar usuário inexistente', async () => {
-    await expect(controller.deleteById('999')).rejects.toThrow(
-      'O usuário com id 999 não foi encontrado',
-    );
+    await expect(
+      controller.deleteById({ user: { sub: '999' } } as RequestWithUser),
+    ).rejects.toThrow('O usuário com id 999 não foi encontrado');
   });
 
   it('Deve atualizar o saldo do usuário', async () => {
-    const updatedUser = await controller.updateUserBalance('1', {
-      amount: 50,
-    });
+    const updatedUser = await controller.updateBalance(
+      {
+        amount: 50,
+      },
+      { user: { sub: '1' } } as RequestWithUser,
+    );
     expect(updatedUser).toBeDefined();
-    expect(updatedUser?.balance).toBe(8050);
+    expect(updatedUser?.balance).toBe(10050);
   });
 
   it('Deve lançar NotFoundException ao atualizar saldo de usuário inexistente', async () => {
     await expect(
-      controller.updateUserBalance('999', { amount: 50 }),
+      controller.updateBalance({ amount: 50 }, {
+        user: { sub: '999' },
+      } as RequestWithUser),
     ).rejects.toThrow('O usuário com id 999 não foi encontrado');
   });
 });
