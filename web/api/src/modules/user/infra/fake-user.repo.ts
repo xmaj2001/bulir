@@ -4,6 +4,17 @@ import { UserEntity } from "../entities/user.entity";
 export class FakeUserRepository extends UserRepository {
   private store = new Map<string, UserEntity>();
 
+  async deposit(
+    userId: string,
+    balanceBefore: number,
+    balanceAfter: number,
+  ): Promise<void> {
+    const user = this.store.get(userId);
+    if (!user) throw new Error("User not found");
+    user.balance = balanceAfter;
+    this.store.set(userId, user);
+  }
+
   async findById(id: string) {
     return this.store.get(id) ?? null;
   }

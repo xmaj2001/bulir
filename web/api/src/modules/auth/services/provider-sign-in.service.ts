@@ -12,15 +12,6 @@ const PROVIDER_MAP: Record<string, AuthProvider> = {
   intra42: AuthProvider.INTRA42,
 };
 
-/**
- * ProviderSignInService — login/registo via OAuth provider.
- *
- * Fluxo:
- *  1. Tenta encontrar user pelo email
- *  2. Se existe → liga o provider à conta (se não está ligado)
- *  3. Se não existe → cria conta nova com email verificado (provider garante)
- *  4. Devolve token pair
- */
 @Injectable()
 export class ProviderSignInService {
   private readonly logger = new Logger(ProviderSignInService.name);

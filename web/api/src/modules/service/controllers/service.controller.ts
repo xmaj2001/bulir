@@ -15,6 +15,8 @@ import { GetServiceService } from "../services/get-service.service";
 import { CreateBookingService } from "../services/create-booking.service";
 import { CreateBookingInput } from "../inputs/create-booking.input";
 import { BookingRepository } from "../repository/booking.repo";
+import { CancelBookingService } from "../services/cancel-booking.service";
+import { Param } from "@nestjs/common";
 
 @ApiTags("Services")
 @Controller("services")
@@ -24,6 +26,7 @@ export class ServiceController {
     private readonly createService: CreateServiceService,
     private readonly getService: GetServiceService,
     private readonly createBooking: CreateBookingService,
+    private readonly cancelBooking: CancelBookingService,
     private readonly bookingRepo: BookingRepository,
   ) {}
 
@@ -75,5 +78,21 @@ export class ServiceController {
   async findMyBookings(@CurrentUser() user: AuthUser) {
     const bookings = await this.bookingRepo.findByClientId(user.sub);
     return bookings.map((b) => b.publicData());
+  }
+
+  @Post("bookings/:id/cancel")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Cancela uma reserva" })
+  async cancelBookingEndpoint(
+    @CurrentUser() user: AuthUser,
+    @Param("id") bookingId: string,
+    @Body("reason") reason?: string,
+  ) {
+    const booking = await this.cancelBooking.execute(
+      user.sub,
+      bookingId,
+      reason,
+    );
+    return booking;
   }
 }

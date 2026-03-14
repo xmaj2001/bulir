@@ -10,6 +10,7 @@ import { CreateBookingInput } from "../inputs/create-booking.input";
 import { EventBusPort } from "@shared/adapters/event-bus/event-bus.port";
 import { BookingCreatedEvent } from "../events/booking-created.event";
 import { Logger } from "@nestjs/common";
+import { UserRepository } from "@modules/user/repository/user.repo";
 
 @Injectable()
 export class CreateBookingService {
@@ -18,6 +19,7 @@ export class CreateBookingService {
   constructor(
     private readonly bookingRepo: BookingRepository,
     private readonly serviceRepo: ServiceRepository,
+    private readonly userRepo: UserRepository,
     private readonly eventBus: EventBusPort,
   ) {}
 
@@ -29,6 +31,15 @@ export class CreateBookingService {
 
     if (!service.isActive) {
       throw new BadRequestException("Este serviço não está ativo no momento");
+    }
+
+    const client = await this.userRepo.findById(clientId);
+    if (!client) {
+      throw new NotFoundException("Cliente não encontrado");
+    }
+
+    if (Number(client.balance) < Number(service.price)) {
+      throw new BadRequestException("Saldo insuficiente");
     }
 
     if (service.providerId === clientId) {

@@ -15,6 +15,11 @@ export class CreateServiceInput {
   @IsNotEmpty({ message: "O nome é obrigatório" })
   name: string;
 
+  @ApiProperty({ example: "https://example.com/image.jpg" })
+  @IsString({ message: "A URL da imagem deve ser uma string" })
+  @IsOptional()
+  imageUrl?: string;
+
   @ApiProperty({ example: "Limpeza profunda de sofás a seco" })
   @IsString({ message: "A descrição deve ser uma string" })
   @IsNotEmpty({ message: "A descrição é obrigatória" })

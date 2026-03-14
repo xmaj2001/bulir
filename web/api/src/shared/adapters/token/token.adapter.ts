@@ -13,18 +13,18 @@ export class TokenAdapter extends TokenPort {
   }
 
   generatePair(payload: { sub: string; role: string }): TokenPair {
-    const accessToken = this.jwt.sign(payload, {
+    const access_token = this.jwt.sign(payload, {
       secret: this.config.get<string>("jwt.accessSecret"),
       expiresIn: this.config.get<string>("jwt.accessExpiresIn"),
     });
-    const refreshToken = this.jwt.sign(
+    const refresh_token = this.jwt.sign(
       { sub: payload.sub },
       {
         secret: this.config.get<string>("jwt.refreshSecret"),
         expiresIn: this.config.get<string>("jwt.refreshExpiresIn"),
       },
     );
-    return { accessToken, refreshToken };
+    return { access_token, refresh_token };
   }
 
   verifyAccess(token: string) {

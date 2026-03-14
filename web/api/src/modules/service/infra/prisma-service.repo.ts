@@ -31,6 +31,7 @@ export class PrismaServiceRepository extends ServiceRepository {
     const data = {
       id: service.id,
       providerId: service.providerId,
+      imageUrl: service.imageUrl,
       name: service.name,
       description: service.description,
       price: service.price,
@@ -53,6 +54,7 @@ export class PrismaServiceRepository extends ServiceRepository {
     return new ServiceEntity({
       id: data.id,
       providerId: data.providerId,
+      imageUrl: data.imageUrl,
       name: data.name,
       description: data.description,
       price: data.price,

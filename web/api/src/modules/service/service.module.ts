@@ -9,6 +9,7 @@ import { EventBusAdapter } from "@shared/adapters/event-bus/event-bus.adapter";
 import { EventBusPort } from "@shared/adapters/event-bus/event-bus.port";
 import { GetServiceService } from "./services/get-service.service";
 import { CreateBookingService } from "./services/create-booking.service";
+import { CancelBookingService } from "./services/cancel-booking.service";
 import { BookingRepository } from "./repository/booking.repo";
 import { PrismaBookingRepository } from "./infra/prisma-booking.repo";
 import { BookingCreatedListener } from "./listeners/booking-created.listener";
@@ -28,6 +29,7 @@ export class ServiceModule {
         CreateServiceService,
         GetServiceService,
         CreateBookingService,
+        CancelBookingService,
         ServiceCreatedListener,
         BookingCreatedListener,
         BookingCompletedListener,

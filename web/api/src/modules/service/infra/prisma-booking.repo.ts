@@ -86,13 +86,11 @@ export class PrismaBookingRepository extends BookingRepository {
         throw new Error("Saldo insuficiente");
       }
 
-      // 1. Deduzir saldo do cliente
       await tx.user.update({
         where: { id: clientId },
         data: { balance: balance - totalPrice },
       });
 
-      // 2. Registar transação
       await tx.walletTransaction.create({
         data: {
           userId: clientId,
@@ -105,7 +103,6 @@ export class PrismaBookingRepository extends BookingRepository {
         },
       });
 
-      // 3. Confirmar a reserva
       await tx.booking.update({
         where: { id: bookingId },
         data: {
@@ -129,13 +126,10 @@ export class PrismaBookingRepository extends BookingRepository {
 
       const balanceBefore = Number(provider.balance);
 
-      // 1. Creditar saldo do provider
       await tx.user.update({
         where: { id: providerId },
         data: { balance: balanceBefore + totalPrice },
       });
-
-      // 2. Registar transação
       await tx.walletTransaction.create({
         data: {
           userId: providerId,

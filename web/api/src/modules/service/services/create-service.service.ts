@@ -27,6 +27,7 @@ export class CreateServiceService {
       providerId,
       name: input.name,
       description: input.description,
+      imageUrl: input.imageUrl,
       price: input.price,
       isActive: input.isActive,
     });

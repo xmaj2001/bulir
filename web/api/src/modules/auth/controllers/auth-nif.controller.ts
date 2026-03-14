@@ -51,7 +51,7 @@ export class AuthNifController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this._signIn.signInNif(input);
-    setRefreshCookie(res, this.config, result.refreshToken);
-    return { user: result.user, accessToken: result.accessToken };
+    setRefreshCookie(res, this.config, result.refresh_token);
+    return { user: result.user, access_token: result.access_token };
   }
 }

@@ -15,6 +15,7 @@ export interface ServiceProps {
   description: string;
   price: number;
   isActive?: boolean;
+  imageUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -26,6 +27,7 @@ export class ServiceEntity extends BaseEntity {
   description: string;
   price: number;
   isActive: boolean;
+  imageUrl?: string | null;
 
   constructor(props: ServiceProps) {
     super(props.id, props.createdAt, props.updatedAt);
@@ -51,6 +53,7 @@ export class ServiceEntity extends BaseEntity {
     this.description = props.description.trim();
     this.price = props.price;
     this.isActive = props.isActive ?? true;
+    this.imageUrl = props.imageUrl ?? null;
   }
 
   activate(): void {
@@ -63,7 +66,12 @@ export class ServiceEntity extends BaseEntity {
     this.touch();
   }
 
-  updateDetails(name: string, description: string, price: number): void {
+  updateDetails(
+    name: string,
+    description: string,
+    price: number,
+    imageUrl?: string | null,
+  ): void {
     if (!name || name.trim().length < 2) {
       throw new Error("Nome do serviço inválido");
     }
@@ -77,6 +85,7 @@ export class ServiceEntity extends BaseEntity {
     this.name = name.trim();
     this.description = description.trim();
     this.price = price;
+    this.imageUrl = imageUrl ?? null;
     this.touch();
   }
 
@@ -93,6 +102,7 @@ export class ServiceEntity extends BaseEntity {
       description: this.description,
       price: this.price,
       isActive: this.isActive,
+      imageUrl: this.imageUrl,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
