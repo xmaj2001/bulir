@@ -2,12 +2,16 @@ import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Logger } from "@nestjs/common";
 import { Job } from "bullmq";
 import { BookingRepository } from "../repository/booking.repo";
+import { BookingGateway } from "../websocket/booking.gateway";
 
 @Processor("payments")
 export class PaymentsProcessor extends WorkerHost {
   private readonly logger = new Logger(PaymentsProcessor.name);
 
-  constructor(private readonly bookingRepo: BookingRepository) {
+  constructor(
+    private readonly bookingRepo: BookingRepository,
+    private readonly gateway: BookingGateway,
+  ) {
     super();
   }
 
@@ -37,10 +41,12 @@ export class PaymentsProcessor extends WorkerHost {
       this.logger.log(
         `[process-payment] Pagamento processado → booking ${bookingId}`,
       );
+      this.gateway.notifyPaymentProcessed(clientId, bookingId);
     } catch (error) {
       this.logger.error(
         `[process-payment] Falhou → booking ${bookingId}: ${error.message}`,
       );
+      this.gateway.notifyPaymentFailed(clientId, bookingId, error.message);
       throw error;
     }
   }

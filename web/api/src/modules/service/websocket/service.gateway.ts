@@ -3,9 +3,8 @@ import { Server } from "socket.io";
 import { Logger } from "@nestjs/common";
 import { ServiceEntity } from "../entities/service.entity";
 import { ApiExtraModels } from "@nestjs/swagger";
-import { ServiceCreatedEvent } from "../events/service-created.event";
 
-@ApiExtraModels(ServiceCreatedEvent)
+@ApiExtraModels(ServiceEntity)
 @WebSocketGateway({
   namespace: "services",
   cors: {

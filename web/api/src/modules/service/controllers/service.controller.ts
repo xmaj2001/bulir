@@ -1,25 +1,14 @@
 import { Controller, Post, Body, Get, UseGuards } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { CreateServiceService } from "../services/create-service.service";
-import { ServiceRepository } from "../repository/service.repo";
 import { CreateServiceInput } from "../inputs/create-service.input";
 import {
   AuthUser,
   CurrentUser,
 } from "@common/decorators/current-user.decorator";
-import { Roles } from "@common/decorators/roles.decorator";
-import { Role } from "@modules/user/entities/enums/role.enum";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Public } from "@common/decorators/public.decorator";
 import { GetServiceService } from "../services/get-service.service";
-import { CreateBookingService } from "../services/create-booking.service";
-import { CreateBookingInput } from "../inputs/create-booking.input";
-import { BookingRepository } from "../repository/booking.repo";
-import { CancelBookingService } from "../services/cancel-booking.service";
-import { ListMyBookingsService } from "../services/list-my-bookings.service";
-import { ListProviderBookingsService } from "../services/list-provider-bookings.service";
-import { ConfirmBookingService } from "../services/confirm-booking.service";
-import { Param } from "@nestjs/common";
 
 @ApiTags("Services")
 @Controller("services")
@@ -28,11 +17,6 @@ export class ServiceController {
   constructor(
     private readonly createService: CreateServiceService,
     private readonly getService: GetServiceService,
-    private readonly createBooking: CreateBookingService,
-    private readonly listMyBookings: ListMyBookingsService,
-    private readonly listProviderBookings: ListProviderBookingsService,
-    private readonly confirmBooking: ConfirmBookingService,
-    private readonly cancelBooking: CancelBookingService,
   ) {}
 
   @Post()
@@ -62,60 +46,5 @@ export class ServiceController {
   async findMine(@CurrentUser() user: AuthUser) {
     const services = await this.getService.findMine(user.sub);
     return services;
-  }
-
-  // ── Bookings ──────────────────────────────────────────────────────────────
-
-  @Post("bookings")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Cria uma nova reserva" })
-  async createBookingEndpoint(
-    @CurrentUser() user: AuthUser,
-    @Body() input: CreateBookingInput,
-  ) {
-    const booking = await this.createBooking.execute(user.sub, input);
-    return booking;
-  }
-
-  @Get("bookings/mine")
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: "Lista as minhas reservas (como cliente) e histórico",
-  })
-  async findMyBookings(@CurrentUser() user: AuthUser) {
-    return this.listMyBookings.execute(user.sub);
-  }
-
-  @Get("bookings/provider")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Lista as reservas recebidas (como provider)" })
-  async findProviderBookings(@CurrentUser() user: AuthUser) {
-    return this.listProviderBookings.execute(user.sub);
-  }
-
-  @Post("bookings/:id/confirm")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Confirma uma reserva (pelo provider)" })
-  async confirmBookingEndpoint(
-    @CurrentUser() user: AuthUser,
-    @Param("id") bookingId: string,
-  ) {
-    return this.confirmBooking.execute(user.sub, bookingId);
-  }
-
-  @Post("bookings/:id/cancel")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Cancela uma reserva" })
-  async cancelBookingEndpoint(
-    @CurrentUser() user: AuthUser,
-    @Param("id") bookingId: string,
-    @Body("reason") reason?: string,
-  ) {
-    const booking = await this.cancelBooking.execute(
-      user.sub,
-      bookingId,
-      reason,
-    );
-    return booking;
   }
 }

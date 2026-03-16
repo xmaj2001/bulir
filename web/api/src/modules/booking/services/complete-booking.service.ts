@@ -1,3 +1,4 @@
+// complete-booking.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -5,12 +6,12 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { BookingRepository } from "../repository/booking.repo";
-import { BookingStatus } from "../entities/booking.entity";
 import { EventBusPort } from "@shared/adapters/event-bus/event-bus.port";
 import { BookingCompletedEvent } from "../events/booking-completed.event";
+import { BookingStatus } from "../entities/booking.entity";
 
 @Injectable()
-export class ConfirmBookingService {
+export class CompleteBookingService {
   constructor(
     private readonly bookingRepo: BookingRepository,
     private readonly eventBus: EventBusPort,
@@ -18,31 +19,31 @@ export class ConfirmBookingService {
 
   async execute(providerId: string, bookingId: string) {
     const booking = await this.bookingRepo.findById(bookingId);
+    if (!booking) throw new NotFoundException("Reserva não encontrada");
 
-    if (!booking) {
-      throw new NotFoundException("Reserva não encontrada");
-    }
-
-    // Apenas o provider do serviço pode confirmar
-    if (booking.service?.providerId !== providerId) {
-      throw new ForbiddenException(
-        "Não tens permissão para confirmar esta reserva",
-      );
-    }
-
-    if (booking.status !== BookingStatus.PENDING) {
+    if (booking.status !== BookingStatus.CONFIRMED) {
       throw new BadRequestException(
-        `Apenas reservas PENDENTES podem ser confirmadas. Status atual: ${booking.status}`,
+        "Só reservas confirmadas podem ser concluídas",
       );
     }
 
-    await this.bookingRepo.save(booking);
+    if (!booking.service) {
+      throw new BadRequestException("Reserva não tem serviço");
+    }
 
+    if (booking.service.providerId !== providerId) {
+      throw new ForbiddenException(
+        "Só o prestador do serviço pode marcar a reserva como concluída",
+      );
+    }
+
+    booking.complete();
+    await this.bookingRepo.save(booking);
     this.eventBus.publish([
       new BookingCompletedEvent({
         bookingId: booking.id,
         clientId: booking.clientId,
-        providerId: booking.service?.providerId,
+        providerId: booking.service.providerId,
         totalPrice: booking.totalPrice,
       }),
     ]);

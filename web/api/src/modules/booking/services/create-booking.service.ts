@@ -4,13 +4,13 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { BookingRepository } from "../repository/booking.repo";
-import { ServiceRepository } from "../repository/service.repo";
 import { BookingEntity } from "../entities/booking.entity";
 import { CreateBookingInput } from "../inputs/create-booking.input";
 import { EventBusPort } from "@shared/adapters/event-bus/event-bus.port";
 import { BookingCreatedEvent } from "../events/booking-created.event";
 import { Logger } from "@nestjs/common";
 import { UserRepository } from "@modules/user/repository/user.repo";
+import { ServiceRepository } from "@modules/service/repository/service.repo";
 
 @Injectable()
 export class CreateBookingService {
@@ -51,7 +51,6 @@ export class CreateBookingService {
       serviceId: service.id,
       totalPrice: service.price,
       notes: input.notes,
-      scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : undefined,
     });
 
     await this.bookingRepo.save(booking);

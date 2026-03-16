@@ -41,10 +41,11 @@ export class CancelBookingService {
       );
     }
 
+    const previousStatus = booking.status;
     booking.cancel(reason);
     await this.bookingRepo.save(booking);
 
-    this.eventBus.publish([new BookingCancelledEvent(booking)]);
+    this.eventBus.publish([new BookingCancelledEvent(booking, previousStatus)]);
 
     return booking.publicData();
   }

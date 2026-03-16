@@ -6,8 +6,10 @@ import {
   BookingStatus,
   ClientProps,
 } from "../entities/booking.entity";
-import { ProviderProps, ServiceEntity } from "../entities/service.entity";
-import { UserEntity } from "@modules/user/entities/user.entity";
+import {
+  ProviderProps,
+  ServiceEntity,
+} from "@modules/service/entities/service.entity";
 
 @Injectable()
 export class PrismaBookingRepository extends BookingRepository {

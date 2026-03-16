@@ -1,5 +1,6 @@
+import { ServiceEntity } from "@modules/service/entities/service.entity";
+import { BadRequestException } from "@nestjs/common";
 import { BaseEntity } from "@shared/entities/base.entity";
-import { ServiceEntity } from "./service.entity";
 
 export enum BookingStatus {
   PENDING = "PENDING",
@@ -50,13 +51,13 @@ export class BookingEntity extends BaseEntity {
 
   constructor(props: BookingProps) {
     if (!props.clientId) {
-      throw new Error("Reserva deve ter um cliente");
+      throw new BadRequestException("Reserva deve ter um cliente");
     }
     if (!props.serviceId) {
-      throw new Error("Reserva deve ter um serviço");
+      throw new BadRequestException("Reserva deve ter um serviço");
     }
     if (props.totalPrice <= 0) {
-      throw new Error("Preço da reserva deve ser maior que zero");
+      throw new BadRequestException("Preço da reserva deve ser maior que zero");
     }
 
     super(props.id, props.createdAt, props.updatedAt);
@@ -75,8 +76,8 @@ export class BookingEntity extends BaseEntity {
   }
 
   complete(): void {
-    if (this.status !== BookingStatus.PENDING) {
-      throw new Error(
+    if (this.status !== BookingStatus.CONFIRMED) {
+      throw new BadRequestException(
         `Não é possível completar uma reserva com status ${this.status}`,
       );
     }
@@ -85,10 +86,21 @@ export class BookingEntity extends BaseEntity {
     this.touch();
   }
 
+  confirm(): void {
+    if (this.status !== BookingStatus.PENDING) {
+      throw new BadRequestException(
+        `Não é possível confirmar uma reserva com status ${this.status}`,
+      );
+    }
+    this.status = BookingStatus.CONFIRMED;
+    this.confirmedAt = new Date();
+    this.touch();
+  }
+
   cancel(reason?: string): void {
     const cancellable = [BookingStatus.PENDING];
     if (!cancellable.includes(this.status)) {
-      throw new Error(
+      throw new BadRequestException(
         `Não é possível cancelar uma reserva com status ${this.status}`,
       );
     }
@@ -96,10 +108,6 @@ export class BookingEntity extends BaseEntity {
     this.cancelledAt = new Date();
     this.cancelReason = reason;
     this.touch();
-  }
-
-  isOwnedByClient(clientId: string): boolean {
-    return this.clientId === clientId;
   }
 
   isCancellable(): boolean {

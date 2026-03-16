@@ -4,8 +4,8 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { ServiceGateway } from "../websocket/service.gateway";
 
 @Injectable()
-export class ServiceCreatedListener {
-  private readonly logger = new Logger(ServiceCreatedListener.name);
+export class ServiceListener {
+  private readonly logger = new Logger(ServiceListener.name);
   constructor(private readonly serviceGateway: ServiceGateway) {}
 
   @OnEvent("SERVICE.CREATED")

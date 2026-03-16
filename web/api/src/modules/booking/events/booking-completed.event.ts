@@ -1,5 +1,4 @@
 import { DomainEvent } from "@shared/entities/domain-event.base";
-import { BookingEntity } from "../entities/booking.entity";
 
 interface BookingCompletedEventProps {
   bookingId: string;

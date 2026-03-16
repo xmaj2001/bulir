@@ -3,7 +3,6 @@ import { Server } from "socket.io";
 import { Logger } from "@nestjs/common";
 import { ApiExtraModels } from "@nestjs/swagger";
 import { DepositEvent } from "../events/deposit-event";
-import { BookingCreatedEvent } from "@modules/service/events/booking-created.event";
 import { UserRepository } from "../repository/user.repo";
 
 @ApiExtraModels(DepositEvent)
