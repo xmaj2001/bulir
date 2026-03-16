@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyBookings, createBooking } from "@/lib/api";
+import {
+  getMyBookings,
+  createBooking,
+  getProviderBookings,
+  confirmBooking,
+  cancelBooking,
+} from "@/lib/api";
 import { CreateBookingInput } from "@/schemas/service.schema";
 
 export function useMyBookings() {
@@ -13,13 +19,54 @@ export function useMyBookings() {
   });
 }
 
+export function useProviderBookings() {
+  return useQuery({
+    queryKey: ["bookings", "provider"],
+    queryFn: async () => {
+      const res = await getProviderBookings();
+      if (!res.success) throw new Error("Falha ao carregar reservas recebidas");
+      return res.data;
+    },
+  });
+}
+
 export function useCreateBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: CreateBookingInput) => {
       const res = await createBooking(data);
-      if (!res.success) throw new Error("Falha ao criar reserva");
+      if (!res.success) throw res;
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+}
+
+export function useConfirmBooking() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await confirmBooking(id);
+      if (!res.success) throw res;
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+}
+
+export function useCancelBooking() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const res = await cancelBooking(id, reason);
+      if (!res.success) throw res;
       return res.data;
     },
     onSuccess: () => {

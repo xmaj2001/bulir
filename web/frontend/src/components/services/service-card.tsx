@@ -7,12 +7,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit2, Power, Trash2, MoreVertical, Plus } from "lucide-react";
-import { ApiService } from "@/lib/api";
+import { Edit2, Power, Trash2, MoreVertical, Plus, X } from "lucide-react";
+import { ApiService, ApiRequestError } from "@/lib/api";
 
 import { useCreateBooking } from "@/hooks/use-bookings";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ServiceCardProps {
   service: ApiService;
@@ -28,6 +39,8 @@ export default function ServiceCard({
   providerId,
 }: ServiceCardProps) {
   const { mutate: createBooking, isPending } = useCreateBooking();
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleBooking = () => {
     createBooking(
@@ -36,10 +49,13 @@ export default function ServiceCard({
         onSuccess: () => {
           alert("Reserva efetuada com sucesso!");
         },
-        onError: (error) => {
-          alert(
-            error instanceof Error ? error.message : "Erro ao efetuar reserva",
-          );
+        onError: (error: any) => {
+          if (error instanceof ApiRequestError) {
+            setErrorMessage(error.message);
+          } else {
+            setErrorMessage("Ocorreu um erro inesperado ao tentar reservar.");
+          }
+          setErrorModalOpen(true);
         },
       },
     );
@@ -138,6 +154,28 @@ export default function ServiceCard({
           )}
         </div>
       </div>
+      <AlertDialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+        <AlertDialogContent className="rounded-[1rem] border-border bg-card/95 backdrop-blur-xl">
+          <AlertDialogHeader>
+            <div className="flex items-center justify-center mb-4 w-full py-4">
+              <div className="bg-amber-300/10 p-3 rounded-full">
+                <X className="w-6 h-6 text-amber-300" />
+              </div>
+            </div>
+            <AlertDialogTitle className="text-xl font-bold">
+              {"Não foi possível efetuar a reserva"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              {errorMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex items-center justify-center">
+            <AlertDialogAction className="rounded-lg font-bold h-10 shadow-glow hover:shadow-glow-lg transition-all">
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }

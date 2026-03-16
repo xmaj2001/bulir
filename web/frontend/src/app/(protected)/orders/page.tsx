@@ -3,21 +3,22 @@
 import { Search, Filter, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMyBookings } from "@/hooks/use-bookings";
+import { useProviderBookings } from "@/hooks/use-bookings";
 import BookingCard from "@/components/bookings/booking-card";
 
-export default function BookingsPage() {
-  const { data: clientBookings, isLoading: loadingClient } = useMyBookings();
+export default function OrdersPage() {
+  const { data: providerBookings, isLoading: loadingProvider } =
+    useProviderBookings();
 
   return (
     <div className="space-y-8">
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-glow">
-            Minhas Reservas
+            Pedidos de Serviços
           </h1>
           <p className="text-muted-foreground">
-            Acompanhe o estado das suas solicitações e agendamentos.
+            Acompanhe o estado dos pedidos de serviços dos seus clientes.
           </p>
         </div>
 
@@ -25,7 +26,7 @@ export default function BookingsPage() {
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Pesquisar reservas..."
+              placeholder="Pesquisar pedidos..."
               className="pl-10 h-10 rounded-xl bg-card border-border"
             />
           </div>
@@ -36,18 +37,23 @@ export default function BookingsPage() {
       </header>
 
       <div className="space-y-6">
-        {loadingClient ? (
+        {loadingProvider ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <SkeletonBookingCard key={i} />
             ))}
           </div>
-        ) : clientBookings?.length === 0 ? (
-          <EmptyState message="Ainda não tens nenhuma reserva efetuada." />
+        ) : providerBookings?.length === 0 ? (
+          <EmptyState message="Ainda não recebeste nenhuna pedido de reserva." />
         ) : (
           <div className="space-y-4">
-            {clientBookings?.map((booking, i) => (
-              <BookingCard key={booking.id} booking={booking} i={i} />
+            {providerBookings?.map((booking, i) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                i={i}
+                isProviderView
+              />
             ))}
           </div>
         )}

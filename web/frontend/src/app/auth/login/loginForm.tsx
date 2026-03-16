@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import { useAuth } from "@/hooks/use-auth";
 
 const loginSchema = z.object({
   emailOrNif: z.string().min(1, "Email ou NIF é obrigatório"),
@@ -23,12 +22,12 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const { login } = useAuth();
   const searchParams = useSearchParams();
   const justRegistered = searchParams.get("registered") === "1";
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const {
     register,
@@ -39,14 +38,20 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    try {
-      setIsLoading(true);
-      setError("");
-      await login(data.emailOrNif, data.password);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao entrar");
-    } finally {
+    setIsLoading(true);
+    setError("");
+
+    const result = await signIn("credentials", {
+      identifier: data.emailOrNif,
+      password: data.password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Credenciais inválidas. Verifique o seu e-mail/NIF e senha.");
       setIsLoading(false);
+    } else {
+      router.push("/dashboard");
     }
   };
 

@@ -16,6 +16,9 @@ import { CreateBookingService } from "../services/create-booking.service";
 import { CreateBookingInput } from "../inputs/create-booking.input";
 import { BookingRepository } from "../repository/booking.repo";
 import { CancelBookingService } from "../services/cancel-booking.service";
+import { ListMyBookingsService } from "../services/list-my-bookings.service";
+import { ListProviderBookingsService } from "../services/list-provider-bookings.service";
+import { ConfirmBookingService } from "../services/confirm-booking.service";
 import { Param } from "@nestjs/common";
 
 @ApiTags("Services")
@@ -26,14 +29,16 @@ export class ServiceController {
     private readonly createService: CreateServiceService,
     private readonly getService: GetServiceService,
     private readonly createBooking: CreateBookingService,
+    private readonly listMyBookings: ListMyBookingsService,
+    private readonly listProviderBookings: ListProviderBookingsService,
+    private readonly confirmBooking: ConfirmBookingService,
     private readonly cancelBooking: CancelBookingService,
-    private readonly bookingRepo: BookingRepository,
   ) {}
 
   @Post()
   // @Roles(Role.PROVIDER, Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Cria um novo serviço (Apenas Providers/Admins)" })
+  @ApiOperation({ summary: "Cria um novo serviço" })
   async create(
     @CurrentUser() user: AuthUser,
     @Body() input: CreateServiceInput,
@@ -53,7 +58,7 @@ export class ServiceController {
   @Get("mine")
   // @Roles(Role.PROVIDER, Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Lista os meus serviços (Apenas Providers/Admins)" })
+  @ApiOperation({ summary: "Lista os meus serviços" })
   async findMine(@CurrentUser() user: AuthUser) {
     const services = await this.getService.findMine(user.sub);
     return services;
@@ -74,10 +79,28 @@ export class ServiceController {
 
   @Get("bookings/mine")
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Lista as minhas reservas (como cliente)" })
+  @ApiOperation({
+    summary: "Lista as minhas reservas (como cliente) e histórico",
+  })
   async findMyBookings(@CurrentUser() user: AuthUser) {
-    const bookings = await this.bookingRepo.findByClientId(user.sub);
-    return bookings.map((b) => b.publicData());
+    return this.listMyBookings.execute(user.sub);
+  }
+
+  @Get("bookings/provider")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Lista as reservas recebidas (como provider)" })
+  async findProviderBookings(@CurrentUser() user: AuthUser) {
+    return this.listProviderBookings.execute(user.sub);
+  }
+
+  @Post("bookings/:id/confirm")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Confirma uma reserva (pelo provider)" })
+  async confirmBookingEndpoint(
+    @CurrentUser() user: AuthUser,
+    @Param("id") bookingId: string,
+  ) {
+    return this.confirmBooking.execute(user.sub, bookingId);
   }
 
   @Post("bookings/:id/cancel")

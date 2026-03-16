@@ -11,13 +11,13 @@ import {
   Users,
   Calendar,
   User,
+  ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
+import { signOut } from "next-auth/react";
 
 export default function Sidebar() {
-  const { logout, user } = useAuth();
   const pathname = usePathname();
 
   const navItems = [
@@ -39,9 +39,9 @@ export default function Sidebar() {
       show: true,
     },
     {
-      label: "Clientes",
-      href: "/customers",
-      icon: Users,
+      label: "Pedidos",
+      href: "/orders",
+      icon: ShoppingCart,
     },
     {
       label: "Perfil",
@@ -55,7 +55,7 @@ export default function Sidebar() {
       <div className="flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/Logo.png" alt="Logo" width={32} height={32} />
-          <span className="text-xl font-bold tracking-tight">Bulir</span>
+          <span className="text-xl font-bold tracking-tight">Qcena</span>
         </Link>
       </div>
 
@@ -98,7 +98,7 @@ export default function Sidebar() {
       <Button
         variant="outline"
         className="gap-3 text-destructive border-destructive/20 hover:bg-destructive/5"
-        onClick={() => logout()}
+        onClick={() => signOut()}
       >
         <LogOut className="w-4 h-4" /> Sair
       </Button>

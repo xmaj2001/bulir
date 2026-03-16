@@ -3,6 +3,7 @@ import { BookingEntity } from "../entities/booking.entity";
 export abstract class BookingRepository {
   abstract findById(id: string): Promise<BookingEntity | null>;
   abstract findByClientId(clientId: string): Promise<BookingEntity[]>;
+  abstract findByProviderId(providerId: string): Promise<BookingEntity[]>;
   abstract findByServiceId(serviceId: string): Promise<BookingEntity[]>;
   abstract save(booking: BookingEntity): Promise<void>;
   abstract findByStatus(status: string): Promise<BookingEntity[]>;

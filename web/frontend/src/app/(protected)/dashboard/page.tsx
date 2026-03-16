@@ -8,10 +8,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import ServiceCard from "@/components/services/service-card";
 import { useServices } from "@/hooks/use-services";
 import { useServicesSocket } from "@/hooks/use-services-socket";
-import { useAuth } from "@/hooks/use-auth";
+import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { data: services } = useServices();
   useServicesSocket();
   return (

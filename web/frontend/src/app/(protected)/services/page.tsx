@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { useMyServices } from "@/hooks/use-services";
 import ServiceCard from "@/components/services/service-card";
 import CreateServiceModal from "@/components/services/create-service-modal";
-import { useAuth } from "@/hooks/use-auth";
+import { useSession } from "next-auth/react";
 
 export default function ServicesPage() {
   const { data: services, isLoading } = useMyServices();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <div className="space-y-8">

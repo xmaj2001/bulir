@@ -6,7 +6,7 @@ import { Menu, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/use-auth";
+import { useSession } from "next-auth/react";
 
 const navItems = [
   { label: "App", href: "#app" },
@@ -19,9 +19,9 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { data: session } = useSession();
 
-  if (user) {
+  if (session && session.user) {
     if (!navItems.find((item) => item.label === "Dashboard")) {
       navItems.push({ label: "Dashboard", href: "/dashboard" });
     }
@@ -68,7 +68,7 @@ export function Navbar() {
         </div>
 
         {/* CTA Buttons */}
-        {user ? (
+        {session?.user ? (
           <div className="hidden md:flex items-center gap-3">
             <Button
               variant="ghost"
@@ -76,7 +76,7 @@ export function Navbar() {
               className="text-zinc-400 hover:text-primary hover:bg-zinc-800"
               onClick={() => router.push("/profile")}
             >
-              {user.name}
+              {session.user.name}
             </Button>
             <Button
               size="icon-sm"

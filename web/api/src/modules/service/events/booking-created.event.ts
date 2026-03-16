@@ -5,6 +5,7 @@ export class BookingCreatedEvent extends DomainEvent {
     public readonly bookingId: string,
     public readonly clientId: string,
     public readonly totalPrice: number,
+    public readonly providerId: string,
   ) {
     super("BOOKING.CREATED");
   }

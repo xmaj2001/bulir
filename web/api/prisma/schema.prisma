@@ -29,8 +29,8 @@ enum AuthProvider {
 
 enum BookingStatus {
   PENDING
-  CONFIRMED
   CANCELLED
+  CONFIRMED
   COMPLETED
 }
 

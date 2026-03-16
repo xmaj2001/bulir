@@ -13,11 +13,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
 import { useWalletSocket } from "@/hooks/use-wallet-socket";
+import { useSession } from "next-auth/react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   useWalletSocket();
   const infoItems = [
     { label: "Email", value: user?.email || "Sem email", icon: Mail },
@@ -83,7 +84,7 @@ export default function ProfilePage() {
               variant="outline"
               className="mt-2 border-primary/50 text-primary uppercase tracking-widest text-[10px]"
             >
-              {(user as { role?: string })?.role}
+              {user?.role}
             </Badge>
           </div>
 
@@ -98,7 +99,7 @@ export default function ProfilePage() {
               {new Intl.NumberFormat("pt-AO", {
                 style: "currency",
                 currency: "AOA",
-              }).format((user as { balance?: number })?.balance || 0)}
+              }).format(user?.balance || 0)}
             </div>
             <Button
               size="sm"

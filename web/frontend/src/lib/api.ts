@@ -1,3 +1,5 @@
+import { getSession } from "next-auth/react";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 // ── Tipos de erro ──────────────────────────────────────────────────────────────
@@ -78,7 +80,7 @@ interface ApiEnvelope<T> {
 
 export interface AuthData {
   user: ApiUser;
-  accessToken: string;
+  access_token: string;
 }
 
 export type AuthResponse = ApiEnvelope<AuthData>;
@@ -91,9 +93,7 @@ export type BookingsResponse = ApiEnvelope<ApiBooking[]>;
 // ── Core Fetch ────────────────────────────────────────────────────────────────
 
 interface FetchOptions extends RequestInit {
-  // cookie externo a repassar (usado no SSR para o refresh)
   forwardCookie?: string;
-  // token explícito (opcional)
   token?: string;
 }
 
@@ -101,9 +101,17 @@ export async function apiFetch<T>(
   path: string,
   options: FetchOptions = {},
 ): Promise<T> {
+  let token;
+  if (typeof window !== "undefined") {
+    const session = await getSession();
+    token = session?.access_token || options.token;
+  } else {
+    token = options.token;
+  }
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   const res = await fetch(`${API_URL}${path}`, {
@@ -112,22 +120,11 @@ export async function apiFetch<T>(
     credentials: "include",
   });
 
-  if (res.status === 401 && typeof window !== "undefined") {
-    const body = await res.json();
-    console.log("apiFetch", body);
-    if (body.error.message.includes("Token")) {
-      const refreshed = await fetch("/api/auth/refresh", { method: "POST" });
-      if (refreshed.ok) return apiFetch<T>(path, options);
-    }
-    window.location.href = "/auth/login";
-    throw new Error("Sessão expirada");
-  }
-
   if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`[api] ${res.status} ${path} — ${body}`);
+    const body = await res.json().catch(() => ({}));
+    const message = body?.error?.message || body?.message || res.statusText;
+    throw new ApiRequestError(res.status, message, path);
   }
-
   return res.json() as Promise<T>;
 }
 
@@ -219,4 +216,24 @@ export function createBooking(data: {
 
 export async function getMyBookings(): Promise<BookingsResponse> {
   return apiFetch<BookingsResponse>("/services/bookings/mine");
+}
+
+export async function getProviderBookings(): Promise<BookingsResponse> {
+  return apiFetch<BookingsResponse>("/services/bookings/provider");
+}
+
+export function confirmBooking(id: string): Promise<BookingResponse> {
+  return apiFetch<BookingResponse>(`/services/bookings/${id}/confirm`, {
+    method: "POST",
+  });
+}
+
+export function cancelBooking(
+  id: string,
+  reason?: string,
+): Promise<BookingResponse> {
+  return apiFetch<BookingResponse>(`/services/bookings/${id}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
 }

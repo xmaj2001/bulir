@@ -8,8 +8,6 @@ import { UserEntity } from "@modules/user/entities/user.entity";
 
 const PROVIDER_MAP: Record<string, AuthProvider> = {
   google: AuthProvider.GOOGLE,
-  github: AuthProvider.GITHUB,
-  intra42: AuthProvider.INTRA42,
 };
 
 @Injectable()

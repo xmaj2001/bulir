@@ -1,10 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Clock, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  User,
+  MoreHorizontal,
+  Check,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ApiBooking, ApiBookingStatus } from "@/lib/api";
+import { useConfirmBooking, useCancelBooking } from "@/hooks/use-bookings";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const statusConfig = {
   [ApiBookingStatus.PENDING]: {
@@ -32,12 +50,23 @@ const statusConfig = {
 interface BookingCardProps {
   booking: ApiBooking;
   i: number;
+  isProviderView?: boolean;
 }
 
-export default function BookingCard({ booking, i }: BookingCardProps) {
+export default function BookingCard({
+  booking,
+  i,
+  isProviderView,
+}: BookingCardProps) {
   const config =
     statusConfig[booking.status] || statusConfig[ApiBookingStatus.PENDING];
   const StatusIcon = config.icon;
+
+  const { mutate: confirm, isPending: isConfirming } = useConfirmBooking();
+  const { mutate: cancel, isPending: isCancelling } = useCancelBooking();
+
+  const handleConfirm = () => confirm(booking.id);
+  const handleCancel = () => cancel({ id: booking.id });
 
   return (
     <motion.div
@@ -73,10 +102,25 @@ export default function BookingCard({ booking, i }: BookingCardProps) {
                 })
               : "Data não definida"}
           </div>
-          <div className="flex items-center gap-1.5 text-primary">
-            <MapPin className="w-4 h-4 text-muted-foreground" />
-            <span>{booking.service.provider.name}</span>
-          </div>
+
+          {isProviderView ? (
+            <div className="flex items-center gap-1.5 text-primary">
+              <Avatar className="w-5 h-5 border border-border">
+                <AvatarImage src={booking.client?.avatarUrl || ""} />
+                <AvatarFallback>
+                  <User className="w-3 h-3" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{booking.client?.name}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-primary">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <span className="font-medium">
+                {booking.service.provider.name}
+              </span>
+            </div>
+          )}
         </div>
 
         {booking.notes && (
@@ -87,17 +131,19 @@ export default function BookingCard({ booking, i }: BookingCardProps) {
         {booking.status === ApiBookingStatus.CANCELLED && (
           <p className="text-xs text-muted-foreground/70 italic line-clamp-1">
             Motivo do cancelamento:{" "}
-            <span className="text-primary">{booking.cancelReason}</span>
+            <span className="text-primary">
+              {booking.cancelReason || "N/A"}
+            </span>
           </p>
         )}
       </div>
 
-      <div className="flex items-center justify-between md:flex-col md:items-end gap-2 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
+      <div className="flex items-center justify-between md:flex-col md:items-end gap-3 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
         <div className="flex flex-col md:items-end">
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">
             Preço Total
           </span>
-          <span className="text-2xl font-black text-glow-sm">
+          <span className="text-2xl font-black text-glow-sm leading-tight">
             {new Intl.NumberFormat("pt-AO", {
               style: "currency",
               currency: "AOA",
@@ -105,13 +151,66 @@ export default function BookingCard({ booking, i }: BookingCardProps) {
           </span>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="rounded-xl text-xs font-bold h-8"
-        >
-          Ver detalhes
-        </Button>
+        <div className="flex items-center gap-2">
+          {isProviderView && booking.status === ApiBookingStatus.PENDING && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl h-8 bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500 hover:text-white font-bold"
+                onClick={handleConfirm}
+                disabled={isConfirming}
+              >
+                {isConfirming ? "..." : <Check className="w-4 h-4 mr-1" />}
+                Confirmar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl h-8 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white font-bold"
+                onClick={handleCancel}
+                disabled={isCancelling}
+              >
+                {isCancelling ? "..." : <X className="w-4 h-4 mr-1" />}
+                Cancelar
+              </Button>
+            </>
+          )}
+
+          {!isProviderView &&
+            (booking.status === ApiBookingStatus.PENDING ||
+              booking.status === ApiBookingStatus.CONFIRMED) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-xl text-xs font-bold h-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                onClick={handleCancel}
+                disabled={isCancelling}
+              >
+                Cancelar
+              </Button>
+            )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-xl h-8 w-8"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl">
+              <DropdownMenuItem className="rounded-lg font-medium">
+                Ver detalhes
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-lg font-medium">
+                Contactar {isProviderView ? "cliente" : "provider"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </motion.div>
   );

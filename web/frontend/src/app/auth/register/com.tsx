@@ -53,7 +53,6 @@ export function RegisterForm() {
       setIsLoading(true);
       setApiError("");
 
-      // Always register with email; password requirement: 8+ chars, 1 uppercase, 1 number, 1 special
       await signUpEmail(data.email, data.name, data.password);
 
       router.push("/auth/login?registered=1");

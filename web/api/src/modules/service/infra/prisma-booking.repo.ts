@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@shared/database/prisma.service";
 import { BookingRepository } from "../repository/booking.repo";
-import { BookingEntity, BookingStatus } from "../entities/booking.entity";
+import {
+  BookingEntity,
+  BookingStatus,
+  ClientProps,
+} from "../entities/booking.entity";
 import { ProviderProps, ServiceEntity } from "../entities/service.entity";
 import { UserEntity } from "@modules/user/entities/user.entity";
 
@@ -23,6 +27,15 @@ export class PrismaBookingRepository extends BookingRepository {
   async findByClientId(clientId: string): Promise<BookingEntity[]> {
     const data = await this.prisma.booking.findMany({
       where: { clientId },
+      orderBy: { createdAt: "desc" },
+      include: { service: { include: { provider: true } } },
+    });
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findByProviderId(providerId: string): Promise<BookingEntity[]> {
+    const data = await this.prisma.booking.findMany({
+      where: { service: { providerId } },
       orderBy: { createdAt: "desc" },
       include: { service: { include: { provider: true } } },
     });
@@ -157,13 +170,10 @@ export class PrismaBookingRepository extends BookingRepository {
 
       const balanceBefore = Number(client.balance);
 
-      // 1. Devolver saldo ao cliente
       await tx.user.update({
         where: { id: clientId },
         data: { balance: balanceBefore + totalPrice },
       });
-
-      // 2. Registar transação
       await tx.walletTransaction.create({
         data: {
           userId: clientId,
@@ -181,6 +191,16 @@ export class PrismaBookingRepository extends BookingRepository {
   private mapToEntity(data: any): BookingEntity {
     let service: ServiceEntity | undefined;
     let provider: ProviderProps | undefined;
+    let client: ClientProps | undefined;
+
+    if (data.client) {
+      client = {
+        name: data.client.name,
+        nif: data.client.nif,
+        email: data.client.email,
+        avatarUrl: data.client.avatarUrl,
+      };
+    }
 
     if (data.service.provider) {
       provider = {
@@ -209,6 +229,7 @@ export class PrismaBookingRepository extends BookingRepository {
       id: data.id,
       clientId: data.clientId,
       serviceId: data.serviceId,
+      client: client,
       service: service,
       status: data.status as BookingStatus,
       totalPrice: Number(data.totalPrice),

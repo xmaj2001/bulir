@@ -3,13 +3,21 @@ import { ServiceEntity } from "./service.entity";
 
 export enum BookingStatus {
   PENDING = "PENDING",
-  CONFIRMED = "CONFIRMED",
   CANCELLED = "CANCELLED",
+  CONFIRMED = "CONFIRMED",
   COMPLETED = "COMPLETED",
+}
+
+export interface ClientProps {
+  name: string;
+  nif: string;
+  email: string;
+  avatarUrl?: string;
 }
 
 export interface BookingProps {
   clientId: string;
+  client?: ClientProps;
   serviceId: string;
   totalPrice: number;
   notes?: string;
@@ -38,6 +46,7 @@ export class BookingEntity extends BaseEntity {
   cancelledAt?: Date;
   cancelReason?: string;
   service?: ServiceEntity;
+  client?: ClientProps;
 
   constructor(props: BookingProps) {
     if (!props.clientId) {
@@ -62,21 +71,11 @@ export class BookingEntity extends BaseEntity {
     this.cancelledAt = props.cancelledAt;
     this.cancelReason = props.cancelReason;
     this.service = props.service;
-  }
-
-  confirm(): void {
-    if (this.status !== BookingStatus.PENDING) {
-      throw new Error(
-        `Não é possível confirmar uma reserva com status ${this.status}`,
-      );
-    }
-    this.status = BookingStatus.CONFIRMED;
-    this.confirmedAt = new Date();
-    this.touch();
+    this.client = props.client;
   }
 
   complete(): void {
-    if (this.status !== BookingStatus.CONFIRMED) {
+    if (this.status !== BookingStatus.PENDING) {
       throw new Error(
         `Não é possível completar uma reserva com status ${this.status}`,
       );
@@ -87,7 +86,7 @@ export class BookingEntity extends BaseEntity {
   }
 
   cancel(reason?: string): void {
-    const cancellable = [BookingStatus.PENDING, BookingStatus.CONFIRMED];
+    const cancellable = [BookingStatus.PENDING];
     if (!cancellable.includes(this.status)) {
       throw new Error(
         `Não é possível cancelar uma reserva com status ${this.status}`,
@@ -104,10 +103,7 @@ export class BookingEntity extends BaseEntity {
   }
 
   isCancellable(): boolean {
-    return (
-      this.status === BookingStatus.PENDING ||
-      this.status === BookingStatus.CONFIRMED
-    );
+    return this.status === BookingStatus.PENDING;
   }
 
   isCompleted(): boolean {
@@ -122,13 +118,13 @@ export class BookingEntity extends BaseEntity {
     return {
       id: this.id,
       clientId: this.clientId,
+      client: this.client,
       serviceId: this.serviceId,
       service: this.service?.publicData(),
       totalPrice: this.totalPrice,
       notes: this.notes,
       scheduledAt: this.scheduledAt,
       status: this.status,
-      confirmedAt: this.confirmedAt,
       completedAt: this.completedAt,
       cancelledAt: this.cancelledAt,
       cancelReason: this.cancelReason,

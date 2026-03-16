@@ -61,8 +61,14 @@ export class CreateBookingService {
     this.logger.log(
       `Publicando evento BookingCreatedEvent para booking ${booking.id}`,
     );
+
     this.eventBus.publish([
-      new BookingCreatedEvent(booking.id, booking.clientId, booking.totalPrice),
+      new BookingCreatedEvent(
+        booking.id,
+        booking.clientId,
+        booking.totalPrice,
+        service.providerId,
+      ),
     ]);
 
     return booking.publicData();
