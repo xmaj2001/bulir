@@ -12,6 +12,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
 import {
   AuthUser,
@@ -20,14 +21,19 @@ import {
 import { UpdateUserInput } from "../inputs/update-user.input";
 import { GetUserService } from "../services/get.user.service";
 import { UpdateUserService } from "../services/update.user.service";
-import { Roles } from "@common/decorators/roles.decorator";
 import { RolesGuard } from "@common/guards/roles.guard";
+import { RateLimitResponse } from "@common/responses/envelope.response";
 
 @ApiTags("Users")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
 @Controller("users")
+@ApiResponse({
+  status: 429,
+  type: RateLimitResponse,
+  description: "Demasiadas tentativas",
+})
 export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(
@@ -44,22 +50,12 @@ export class UserController {
   }
 
   @Patch("me")
+  @Throttle({ critical_auth: {} })
   @ApiOperation({ summary: "Actualizar perfil do utilizador autenticado" })
   @ApiResponse({ status: 200, description: "Perfil actualizado" })
   @ApiResponse({ status: 404, description: "Utilizador não encontrado" })
   @ApiResponse({ status: 422, description: "Input inválido" })
   async update(@CurrentUser() user: AuthUser, @Body() input: UpdateUserInput) {
     return this.updateService.execute(user.sub, input);
-  }
-
-  @Get()
-  @Roles("ADMIN")
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: "Listar todos os utilizadores (Admin)" })
-  @ApiResponse({ status: 200, description: "Lista de utilizadores" })
-  @ApiResponse({ status: 401, description: "Não autenticado" })
-  @ApiResponse({ status: 403, description: "Sem permissão — requer ADMIN" })
-  async getAll() {
-    return this.getservice.getAll();
   }
 }

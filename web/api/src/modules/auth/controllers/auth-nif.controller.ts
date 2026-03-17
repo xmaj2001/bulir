@@ -18,6 +18,7 @@ import { ConfigService } from "@nestjs/config";
 import { NifSignUpInput } from "../inputs/nif-sign-up.input";
 import { NifSignInInput } from "../inputs/nif-sign-in.input";
 import { Throttle } from "@nestjs/throttler";
+import { RateLimitResponse } from "@common/responses/envelope.response";
 
 @ApiTags("Auth — NIF")
 @Public()
@@ -32,23 +33,33 @@ export class AuthNifController {
   ) {}
 
   @Post("sign-up/nif")
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 req/min
+  @Throttle({ critical_signup: {} })
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Registar com nif + password" })
   @ApiResponse({ status: 201, description: "Conta criada" })
   @ApiResponse({ status: 409, description: "NIF já registado" })
   @ApiResponse({ status: 422, description: "Input inválido" })
+  @ApiResponse({
+    status: 429,
+    type: RateLimitResponse,
+    description: "Demasiadas tentativas",
+  })
   async signUp(@Body() input: NifSignUpInput) {
     return this._signUp.signUpNif(input);
   }
 
   @Post("sign-in/nif")
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 req/min
+  @Throttle({ critical_auth: {} })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login com nif + password" })
   @ApiResponse({ status: 200, description: "Login bem-sucedido" })
   @ApiResponse({ status: 401, description: "Credenciais inválidas" })
   @ApiResponse({ status: 403, description: "NIF não verificado" })
+  @ApiResponse({
+    status: 429,
+    type: RateLimitResponse,
+    description: "Demasiadas tentativas",
+  })
   async signIn(
     @Body() input: NifSignInInput,
     @Res({ passthrough: true }) res: Response,

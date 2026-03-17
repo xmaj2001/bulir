@@ -14,6 +14,7 @@ import {
   ApiResponse,
   ApiQuery,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { CreateServiceService } from "../services/create-service.service";
 import { CreateServiceInput } from "../inputs/create-service.input";
 import {
@@ -28,6 +29,7 @@ import {
   ApiErrorResponse,
   ApiSuccessArrayResponse,
   ApiSuccessResponse,
+  RateLimitResponse,
 } from "@common/responses/envelope.response";
 import {
   PaginatedServicesResponse,
@@ -37,6 +39,11 @@ import {
 @ApiTags("Services")
 @Controller("services")
 @UseGuards(RolesGuard)
+@ApiResponse({
+  status: 429,
+  type: RateLimitResponse,
+  description: "Demasiadas tentativas",
+})
 export class ServiceController {
   constructor(
     private readonly createService: CreateServiceService,
@@ -45,7 +52,7 @@ export class ServiceController {
   ) {}
 
   @Post()
-  // @Roles(Role.PROVIDER, Role.ADMIN)
+  @Throttle({ high: {} })
   @ApiBearerAuth()
   @ApiOperation({ summary: "Cria um novo serviço" })
   @ApiResponse({
@@ -62,6 +69,7 @@ export class ServiceController {
   }
 
   @Get()
+  @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Lista todos os serviços ativos" })
   @ApiResponse({
@@ -88,6 +96,7 @@ export class ServiceController {
   }
 
   @Get("search")
+  @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Busca serviços por nome/descrição e preço" })
   @ApiQuery({ name: "q", required: false, type: String })
@@ -117,6 +126,7 @@ export class ServiceController {
   }
 
   @Get(":id")
+  @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Busca um serviço pelo ID" })
   @ApiResponse({

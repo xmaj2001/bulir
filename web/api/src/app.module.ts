@@ -16,28 +16,34 @@ import { AppService } from "@modules/app/app.service";
 import { ServiceModule } from "@modules/service/service.module";
 import { BookingModule } from "@modules/booking/booking.module";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import Redis from "ioredis";
+import { seconds } from "@nestjs/throttler";
+import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [appConfig] }),
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          name: "short",
-          ttl: 1000,
-          limit: 3,
-        },
-        {
-          name: "medium",
-          ttl: 10000,
-          limit: 20,
-        },
-        {
-          name: "long",
-          ttl: 60000, // 1 minuto
-          limit: 100,
-        },
-      ],
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          { name: "critical_auth", ttl: seconds(60), limit: 5 },
+          { name: "critical_signup", ttl: seconds(60), limit: 3 },
+          { name: "high", ttl: seconds(60), limit: 10 },
+          { name: "medium", ttl: seconds(60), limit: 30 },
+          { name: "low", ttl: seconds(60), limit: 60 },
+        ],
+        errorMessage:
+          "Demasiadas tentativas, por favor tenta novamente mais tarde.",
+        storage: new ThrottlerStorageRedisService(
+          new Redis({
+            host: config.get("REDIS_HOST", "localhost"),
+            port: config.get<number>("REDIS_PORT", 6379),
+            password: config.get("REDIS_PASSWORD"),
+          }),
+        ),
+      }),
     }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],

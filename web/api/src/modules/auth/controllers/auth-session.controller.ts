@@ -18,9 +18,16 @@ import { RefreshTokenService } from "../services/refresh-token.service";
 import { Public } from "@common/decorators/public.decorator";
 import { ConfigService } from "@nestjs/config";
 import { setRefreshCookie } from "../helpers/cookie.helper";
+import { Throttle } from "@nestjs/throttler";
+import { RateLimitResponse } from "@common/responses/envelope.response";
 
 @ApiTags("Auth — Session")
 @Public()
+@ApiResponse({
+  status: 429,
+  type: RateLimitResponse,
+  description: "Demasiadas tentativas",
+})
 @Controller("auth")
 export class AuthSessionController {
   private readonly logger = new Logger(AuthSessionController.name);
@@ -31,6 +38,7 @@ export class AuthSessionController {
   ) {}
 
   @Post("refresh")
+  @Throttle({ high: {} })
   @HttpCode(HttpStatus.OK)
   @ApiCookieAuth()
   @ApiOperation({ summary: "Renovar access token via refresh token (cookie)" })
@@ -47,6 +55,7 @@ export class AuthSessionController {
   }
 
   @Post("sign-out")
+  @Throttle({ medium: {} })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Terminar sessão" })
   async signOut(@Res({ passthrough: true }) res: Response) {

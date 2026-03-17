@@ -1,5 +1,11 @@
 import { Controller, Post, Body, Get, UseGuards } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from "@nestjs/swagger";
 import {
   AuthUser,
   CurrentUser,
@@ -13,6 +19,7 @@ import { ListProviderBookingsService } from "../services/list-order.service";
 import { CompleteBookingService } from "../services/complete-booking.service";
 import { Param } from "@nestjs/common";
 import { CancelBookingInput } from "../inputs/cancel-booking.input";
+import { RateLimitResponse } from "@common/responses/envelope.response";
 
 @ApiTags("Bookings")
 @Controller("bookings")
@@ -27,7 +34,13 @@ export class BookingController {
   ) {}
 
   @Post()
+  @Throttle({ high: {} })
   @ApiBearerAuth()
+  @ApiResponse({
+    status: 429,
+    type: RateLimitResponse,
+    description: "Demasiadas tentativas",
+  })
   @ApiOperation({ summary: "Cria uma nova reserva" })
   async createBookingEndpoint(
     @CurrentUser() user: AuthUser,
@@ -38,6 +51,7 @@ export class BookingController {
   }
 
   @Get("mine")
+  @Throttle({ low: {} })
   @ApiBearerAuth()
   @ApiOperation({
     summary: "Lista as minhas reservas (como cliente)",
@@ -64,6 +78,7 @@ export class BookingController {
   }
 
   @Post(":id/cancel")
+  @Throttle({ critical_auth: {} })
   @ApiBearerAuth()
   @ApiOperation({ summary: "Cancela uma reserva" })
   async cancelBookingEndpoint(
