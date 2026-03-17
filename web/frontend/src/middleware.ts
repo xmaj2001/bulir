@@ -18,6 +18,7 @@ export default auth((req) => {
     "/services",
     "/bookings",
     "/orders",
+    "/wallet",
   ].some((route) => nextUrl.pathname.startsWith(route));
 
   const isPublicRoute = ["/auth/login", "/auth/register", "/"].includes(
