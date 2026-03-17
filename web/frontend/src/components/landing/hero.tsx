@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Hyperspeed, hyperspeedPresets } from "../reactbits/Hyperspeed";
 import ShinyText from "../reactbits/ShinyText";
 import TargetCursor from "../reactbits/TargetCursor";
+import { useRouter } from "next/navigation";
 
 const textRevealVariants: Variants = {
   hidden: { y: "100%" },
@@ -20,6 +21,7 @@ const textRevealVariants: Variants = {
 };
 
 export function Hero() {
+  const router = useRouter();
   return (
     <section className="relative min-h-screen z-20 flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden">
       {/* Background gradient */}
@@ -85,6 +87,7 @@ export function Hero() {
         >
           <Button
             size="lg"
+            onClick={() => router.push("/auth/login")}
             className="shimmer-btn cursor-target bg-primary text-white hover:bg-primary/80 rounded-full px-8 h-12 text-base font-medium shadow-lg shadow-white/10"
           >
             Faça seu login
@@ -93,6 +96,7 @@ export function Hero() {
           <Button
             variant="outline"
             size="lg"
+            onClick={() => router.push("/auth/register")}
             className="rounded-full cursor-target px-8 h-12 text-base font-medium border-primary text-zinc-300 hover:bg-primary hover:text-white hover:border-zinc-700 bg-transparent"
           >
             Faça seu cadastro

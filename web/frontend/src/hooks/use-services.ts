@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getServices, getMyServices, createService } from "@/lib/api";
+import {
+  getServices,
+  getMyServices,
+  createService,
+  getService,
+} from "@/lib/api";
 import { CreateServiceInput } from "@/schemas/service.schema";
 
 export function useServices() {
@@ -8,6 +13,17 @@ export function useServices() {
     queryFn: async () => {
       const res = await getServices();
       if (!res.success) throw new Error("Falha ao carregar serviços");
+      return res.data;
+    },
+  });
+}
+
+export function useService(id: string) {
+  return useQuery({
+    queryKey: ["services", id],
+    queryFn: async () => {
+      const res = await getService(id);
+      if (!res.success) throw new Error("Falha ao carregar serviço");
       return res.data;
     },
   });

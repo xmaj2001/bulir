@@ -13,11 +13,11 @@ import { ApiService, ApiRequestError } from "@/lib/api";
 import { useCreateBooking } from "@/hooks/use-bookings";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -49,7 +49,7 @@ export default function ServiceCard({
         onSuccess: () => {
           alert("Reserva efetuada com sucesso!");
         },
-        onError: (error: any) => {
+        onError: (error) => {
           if (error instanceof ApiRequestError) {
             setErrorMessage(error.message);
           } else {
@@ -104,27 +104,29 @@ export default function ServiceCard({
         )}
       </div>
 
-      {service.imageUrl && (
-        <div className="relative aspect-video mb-4 overflow-hidden rounded-2xl border border-border">
-          <Image
-            width={500}
-            height={500}
-            src={service.imageUrl || "/placeholder.jpg"}
-            alt={service.name}
-            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-          />
-        </div>
-      )}
+      <Link href={`/services/${service.id}`} className="block space-y-4">
+        {service.imageUrl && (
+          <div className="relative aspect-video overflow-hidden rounded-2xl border border-border">
+            <Image
+              width={500}
+              height={500}
+              src={service.imageUrl || "/placeholder.jpg"}
+              alt={service.name}
+              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+            />
+          </div>
+        )}
 
-      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-        {service.name}
-      </h3>
+        <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+          {service.name}
+        </h3>
 
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-6">
-        {service.description}
-      </p>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {service.description}
+        </p>
+      </Link>
 
-      <div className="flex items-center justify-between mt-auto">
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
             Preço

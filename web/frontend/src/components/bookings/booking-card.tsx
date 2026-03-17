@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
   Calendar,
-  MapPin,
   Clock,
   CheckCircle2,
   XCircle,
@@ -77,71 +76,108 @@ export default function BookingCard({
       transition={{ delay: i * 0.05 }}
       className="group bg-card border border-border p-6 rounded-[2rem] hover:border-primary/50 transition-all duration-300 flex flex-col md:flex-row md:items-center gap-6"
     >
-      <div className="flex items-center justify-between md:flex-col md:items-end gap-3 border-t md:border-t-0 md:border-r border-border pt-4 md:pt-0 md:px-6">
+      <div className="relative w-full md:w-32 aspect-square rounded-2xl overflow-hidden border border-border group-hover:border-primary/50 transition-colors shrink-0">
         {booking.service.imageUrl ? (
           <Image
             src={booking.service.imageUrl}
             alt={booking.service.name}
-            width={100}
-            height={100}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <ShoppingBagIcon className="w-10 h-10" />
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <ShoppingBagIcon className="w-10 h-10 text-muted-foreground/30" />
+          </div>
         )}
       </div>
 
-      <div className="flex-1 space-y-2">
-        <div className="flex items-center gap-3">
-          <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-            {booking.service.name}
-          </h3>
-          <div
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold",
-              config.color,
-            )}
-          >
-            <StatusIcon className="w-3 h-3" />
-            {config.label}
+      <div className="flex-1 space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-black tracking-tight group-hover:text-primary transition-colors">
+              {booking.service.name}
+            </h3>
+            <div
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest",
+                config.color,
+              )}
+            >
+              <StatusIcon className="w-3 h-3" />
+              {config.label}
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground line-clamp-1 italic">
+            {booking.service.description}
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4" />
-            {booking.scheduledAt
-              ? new Date(booking.scheduledAt).toLocaleDateString("pt-PT", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : "Data não definida"}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-muted rounded-xl">
+              <Calendar className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Data Agendada
+              </p>
+              <p className="text-sm font-bold">
+                {booking.scheduledAt
+                  ? new Date(booking.scheduledAt).toLocaleDateString("pt-PT", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "Por definir"}
+              </p>
+            </div>
           </div>
 
-          {isProviderView ? (
-            <div className="flex items-center gap-1.5 text-primary">
-              <Avatar className="w-5 h-5 border border-border">
-                <AvatarImage src={booking.client?.avatarUrl || ""} />
-                <AvatarFallback>
-                  <User className="w-3 h-3" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium">{booking.client?.name}</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-muted rounded-xl">
+              <User className="w-4 h-4 text-primary" />
             </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-primary">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium">
-                {booking.service.provider.name}
-              </span>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                {isProviderView ? "Cliente" : "Prestador"}
+              </p>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-5 h-5 border border-border">
+                  <AvatarImage
+                    src={
+                      (isProviderView
+                        ? booking.client?.avatarUrl
+                        : booking.service.provider.avatarUrl) || ""
+                    }
+                  />
+                  <AvatarFallback className="text-[10px] font-bold">
+                    {(isProviderView
+                      ? booking.client?.name
+                      : booking.service.provider.name
+                    )
+                      ?.substring(0, 2)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-bold">
+                  {isProviderView
+                    ? booking.client?.name
+                    : booking.service.provider.name}
+                </span>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {booking.notes && (
-          <p className="text-xs text-muted-foreground/70 italic line-clamp-1">
-            {booking.notes}
-          </p>
+          <div className="bg-muted/30 p-3 rounded-xl border border-border/50">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+              Notas do Pedido
+            </p>
+            <p className="text-xs italic text-muted-foreground/80 line-clamp-2">
+              &quot;{booking.notes}&quot;
+            </p>
+          </div>
         )}
         {booking.status === ApiBookingStatus.CANCELLED && (
           <p className="text-xs text-muted-foreground/70 italic line-clamp-1">

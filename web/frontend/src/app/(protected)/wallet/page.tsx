@@ -10,6 +10,8 @@ import {
   AlertCircle,
   ChevronRight,
   TrendingUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   useWalletSummary,
@@ -32,6 +34,7 @@ export default function WalletPage() {
   const [page, setPage] = useState(1);
   const [type, setType] = useState<string | undefined>(undefined);
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
+  const [showBalance, setShowBalance] = useState(false);
 
   const { data: summary, isLoading: isLoadingSummary } = useWalletSummary();
   const { data: transactionsData, isLoading: isLoadingTransactions } =
@@ -88,14 +91,30 @@ export default function WalletPage() {
           </div>
 
           <div className="space-y-1">
-            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-              Saldo Disponível
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Saldo Disponível
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowBalance(!showBalance)}
+                className="h-8 w-8 rounded-full hover:bg-primary/10"
+              >
+                {showBalance ? (
+                  <EyeOff className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <Eye className="w-4 h-4 text-muted-foreground" />
+                )}
+              </Button>
+            </div>
             <div className="text-4xl font-black text-glow-sm tracking-tighter break-all">
               {isLoadingSummary ? (
                 <div className="h-10 w-48 bg-muted animate-pulse rounded-lg" />
-              ) : (
+              ) : showBalance ? (
                 currencyFormatter.format(summary?.balance || 0)
+              ) : (
+                "••••••••"
               )}
             </div>
           </div>
@@ -368,7 +387,7 @@ function TransactionDetailsSheet({
           <div className="space-y-8">
             <div
               className={cn(
-                "p-6 rounded-[2rem] border border-border bg-gradient-to-br",
+                "p-6 rounded-[2rem] border border-border bg-linear-to-br",
                 tx.type === "CREDIT"
                   ? "from-green-500/10 to-transparent"
                   : "from-primary/5 to-transparent",

@@ -35,8 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             ...res.data.user,
             access_token: res.data.access_token,
           };
-        } catch {
-          console.error("[NextAuth] authorize API error");
+        } catch (error) {
+          console.error("[NextAuth] authorize API error", error);
           return null;
         }
       },

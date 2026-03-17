@@ -11,7 +11,7 @@ export function Services() {
 
   const sersvices = services?.map(serviceToMenuItem) ?? [];
   return (
-    <section id="features" className="py-24 px-4 bg-black">
+    <section id="services" className="py-24 px-4 bg-black">
       <div className="max-w-6xl mx-auto">
         <motion.div className="text-center mb-16">
           <h2

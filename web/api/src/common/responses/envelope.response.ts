@@ -1,21 +1,28 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Expose, Type } from "class-transformer";
 
 export function ApiSuccessResponse<T>(DataClass: new () => T) {
+  const className = `${DataClass.name}Envelope`;
+
+  @Expose()
   class SuccessEnvelope {
     @ApiProperty({ example: true })
     success: boolean;
 
     @ApiProperty({ type: () => DataClass })
+    @Expose()
     data: T;
 
     @ApiProperty({ example: "2026-03-17T10:00:00.000Z" })
     ts: string;
   }
-
+  Object.defineProperty(SuccessEnvelope, "name", { value: className });
   return SuccessEnvelope;
 }
 
 export function ApiSuccessArrayResponse<T>(DataClass: new () => T) {
+  const className = `${DataClass.name}ArrayEnvelope`;
+
   class SuccessArrayEnvelope {
     @ApiProperty({ example: true })
     success: boolean;
@@ -26,7 +33,7 @@ export function ApiSuccessArrayResponse<T>(DataClass: new () => T) {
     @ApiProperty({ example: "2026-03-17T10:00:00.000Z" })
     ts: string;
   }
-
+  Object.defineProperty(SuccessArrayEnvelope, "name", { value: className });
   return SuccessArrayEnvelope;
 }
 

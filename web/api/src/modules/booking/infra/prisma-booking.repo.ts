@@ -6,10 +6,8 @@ import {
   BookingStatus,
   ClientProps,
 } from "../entities/booking.entity";
-import {
-  ProviderProps,
-  ServiceEntity,
-} from "@modules/service/entities/service.entity";
+import { ServiceEntity } from "@modules/service/entities/service.entity";
+import { UserEntity } from "@modules/user/entities/user.entity";
 
 @Injectable()
 export class PrismaBookingRepository extends BookingRepository {
@@ -192,7 +190,7 @@ export class PrismaBookingRepository extends BookingRepository {
 
   private mapToEntity(data: any): BookingEntity {
     let service: ServiceEntity | undefined;
-    let provider: ProviderProps | undefined;
+    let provider: UserEntity | undefined;
     let client: ClientProps | undefined;
 
     if (data.client) {
@@ -205,12 +203,16 @@ export class PrismaBookingRepository extends BookingRepository {
     }
 
     if (data.service.provider) {
-      provider = {
+      provider = new UserEntity({
         id: data.service.provider.id,
         name: data.service.provider.name,
         email: data.service.provider.email,
         avatarUrl: data.service.provider.avatarUrl,
-      };
+        role: data.service.provider.role,
+        nif: data.service.provider.nif,
+        createdAt: data.service.provider.createdAt,
+        updatedAt: data.service.provider.updatedAt,
+      });
     }
 
     if (data.service) {
@@ -221,6 +223,7 @@ export class PrismaBookingRepository extends BookingRepository {
         name: data.service.name,
         description: data.service.description,
         price: Number(data.service.price),
+        imageUrl: data.service.imageUrl,
         isActive: data.service.isActive,
         createdAt: data.service.createdAt,
         updatedAt: data.service.updatedAt,

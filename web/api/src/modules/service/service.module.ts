@@ -11,6 +11,7 @@ import { ServiceGateway } from "./websocket/service.gateway";
 import { PrismaModule } from "@shared/database/prisma.module";
 import { UserGateway } from "@modules/user/websocket/user.gateway";
 import { ServiceListener } from "./listeners/service.listener";
+import { SearchServiceService } from "./services/search-service.service";
 
 @Module({})
 export class ServiceModule {
@@ -23,6 +24,7 @@ export class ServiceModule {
         GetServiceService,
         ServiceGateway,
         ServiceListener,
+        SearchServiceService,
         UserGateway,
         { provide: ServiceRepository, useClass: PrismaServiceRepository },
         { provide: EventBusPort, useClass: EventBusAdapter },

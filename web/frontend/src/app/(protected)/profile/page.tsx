@@ -4,7 +4,6 @@ import {
   User as UserIcon,
   Mail,
   Shield,
-  Wallet,
   Hash,
   BadgeCheck,
   AlertCircle,
@@ -12,10 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useMe } from "@/hooks/use-me";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const { data: user, isLoading } = useMe();
-
+  const router = useRouter();
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -56,35 +56,15 @@ export default function ProfilePage() {
 
           <div className="relative">
             <div className="w-32 h-32 rounded-full border-4 border-primary/20 bg-primary/10 flex items-center justify-center overflow-hidden shadow-glow-sm">
-              {user?.avatarUrl && (
-                <UserIcon className="w-16 h-16 text-primary" />
-              )}
+              <UserIcon className="w-16 h-16 text-primary" />
             </div>
             <div className="absolute -bottom-2 -right-2 bg-background border border-border p-2 rounded-full">
               <BadgeCheck className="w-5 h-5 text-primary" />
             </div>
           </div>
-
-          <div className="w-full pt-6 border-t border-border/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Saldo Atual
-              </span>
-              <Wallet className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-3xl font-black text-glow-sm tracking-tighter">
-              {new Intl.NumberFormat("pt-AO", {
-                style: "currency",
-                currency: "AOA",
-              }).format(user?.balance || 0)}
-            </div>
-            {/* <Button
-              size="sm"
-              className="w-full mt-4 rounded-xl font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
-            >
-              Carregar Saldo
-            </Button> */}
-          </div>
+          <p className="text-xs font-black uppercase tracking-widest text-primary">
+            {user?.name}
+          </p>
         </motion.div>
 
         {/* Detailed Info */}
@@ -131,6 +111,7 @@ export default function ProfilePage() {
               <Button
                 variant="outline"
                 className="w-full justify-start rounded-2xl h-12 gap-3 group"
+                onClick={() => router.push("/auth/change-password")}
               >
                 <Hash className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>Alterar Senha de Acesso</span>

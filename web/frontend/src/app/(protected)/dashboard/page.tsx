@@ -1,19 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Search, Bell } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ServiceCard from "@/components/services/service-card";
-import { useServices } from "@/hooks/use-services";
 import { useServicesSocket } from "@/hooks/use-services-socket";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useSearchServices } from "@/hooks/use-search-services";
 
 export default function DashboardPage() {
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data: searchData, isLoading } = useSearchServices({
+    query: debouncedSearch,
+  });
+
+  const services = searchData?.items;
   const { data: session } = useSession();
   const user = session?.user;
-  const { data: services } = useServices();
   useServicesSocket();
   return (
     <>
@@ -32,6 +47,8 @@ export default function DashboardPage() {
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar serviços..."
               className="pl-10 h-10 rounded-xl"
             />
@@ -40,41 +57,8 @@ export default function DashboardPage() {
             <Bell className="w-5 h-5" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
           </Button>
-          {user?.role === "PROVIDER" && (
-            <Button className="rounded-xl gap-2 h-10 px-6 font-bold">
-              <Plus className="w-5 h-5" /> Novo Serviço
-            </Button>
-          )}
         </div>
       </header>
-
-      {/* Stats Grid */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {[
-          { label: "Serviços Ativos", value: "12", trend: "+2" },
-          { label: "Concluídos", value: "48", trend: "+5" },
-          { label: "Avaliação Média", value: "4.9", trend: "★" },
-          { label: "Receita (Mês)", value: "R$ 4.2k", trend: "+15%" },
-        ].map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border p-6 rounded-[2rem] hover:shadow-xl transition-shadow"
-          >
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              {stat.label}
-            </span>
-            <div className="flex items-end justify-between mt-2">
-              <span className="text-3xl font-black">{stat.value}</span>
-              <span className="text-sm font-bold text-primary">
-                {stat.trend}
-              </span>
-            </div>
-          </motion.div>
-        ))}
-      </div> */}
 
       {/* Services List */}
       <div className="space-y-6">
@@ -84,22 +68,44 @@ export default function DashboardPage() {
             href="/services"
             className="text-sm font-bold text-primary hover:underline"
           >
-            Ver todos
+            Meus Serviços
           </Link>
         </div>
 
-        {/* <InfiniteMenu items={menuItems} scale={1} /> */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {services?.map((service, i) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              i={i}
-              buttonBooking
-              providerId={user?.id || ""}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-48 rounded-[2rem] bg-card/50 animate-pulse border border-border/50"
+              />
+            ))}
+          </div>
+        ) : !services || services.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-card/30 border border-dashed border-border rounded-[2rem]">
+            <p className="text-muted-foreground mb-4">
+              {debouncedSearch
+                ? "Nenhum serviço encontrado para esta busca."
+                : "Ainda não existem serviços disponiveis."}
+            </p>
+            {debouncedSearch && (
+              <Button variant="ghost" onClick={() => setSearch("")}>
+                Limpar busca
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {services.map((service, i) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                i={i}
+                providerId={user?.id || ""}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

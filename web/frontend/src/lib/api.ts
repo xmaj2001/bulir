@@ -2,12 +2,14 @@ import { getSession } from "next-auth/react";
 
 const IS_SERVER = typeof window === "undefined";
 
-// No Servidor (Docker): usa o nome do serviço 'api'
-// No Navegador: usa localhost através da porta exposta
-const API_URL = IS_SERVER
-  ? "http://api:5000"
-  : process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-// ── Tipos de erro ──────────────────────────────────────────────────────────────
+let API_URL = "http://api:5000";
+if (process.env.NODE_ENV === "development") {
+  API_URL = "http://localhost:5000";
+} else {
+  API_URL = IS_SERVER
+    ? "http://api:5000"
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+}
 
 export interface ApiError {
   success: false;
@@ -141,9 +143,15 @@ export interface PaginatedTransactions {
   meta: PaginationMeta;
 }
 
+export interface PaginatedServices {
+  items: ApiService[];
+  meta: PaginationMeta;
+}
+
 export type WalletSummaryResponse = ApiEnvelope<WalletSummary>;
 export type PaginatedTransactionsResponse = ApiEnvelope<PaginatedTransactions>;
 export type WalletTransactionResponse = ApiEnvelope<WalletTransaction>;
+export type PaginatedServicesResponse = ApiEnvelope<PaginatedServices>;
 
 // ── Core Fetch ────────────────────────────────────────────────────────────────
 
@@ -241,6 +249,10 @@ export function getMyServices(): Promise<ServicesResponse> {
   return apiFetch<ServicesResponse>("/services/mine");
 }
 
+export function getService(id: string): Promise<ServiceResponse> {
+  return apiFetch<ServiceResponse>(`/services/${id}`);
+}
+
 export function createService(data: {
   name: string;
   description: string;
@@ -320,4 +332,25 @@ export function getTransactionDetail(
   id: string,
 ): Promise<WalletTransactionResponse> {
   return apiFetch<WalletTransactionResponse>(`/wallet/me/transactions/${id}`);
+}
+
+export function searchServices(
+  params: {
+    query?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    page?: number;
+    limit?: number;
+  } = {},
+): Promise<PaginatedServicesResponse> {
+  const query = new URLSearchParams();
+  if (params.query) query.append("q", params.query);
+  if (params.minPrice) query.append("minPrice", params.minPrice.toString());
+  if (params.maxPrice) query.append("maxPrice", params.maxPrice.toString());
+  if (params.page) query.append("page", params.page.toString());
+  if (params.limit) query.append("limit", params.limit.toString());
+
+  return apiFetch<PaginatedServicesResponse>(
+    `/services/search?${query.toString()}`,
+  );
 }

@@ -1,16 +1,10 @@
 import { BaseEntity } from "@shared/entities/base.entity";
-
-export interface ProviderProps {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-}
+import { UserEntity } from "src/modules/user/entities/user.entity";
 
 export interface ServiceProps {
   id?: string;
   providerId: string;
-  provider?: ProviderProps;
+  provider?: UserEntity;
   name: string;
   description: string;
   price: number;
@@ -22,7 +16,7 @@ export interface ServiceProps {
 
 export class ServiceEntity extends BaseEntity {
   providerId: string;
-  provider?: ProviderProps;
+  provider?: UserEntity;
   name: string;
   description: string;
   price: number;
@@ -97,7 +91,7 @@ export class ServiceEntity extends BaseEntity {
     return {
       id: this.id,
       providerId: this.providerId,
-      provider: this.provider,
+      provider: this.provider?.publicData(),
       name: this.name,
       description: this.description,
       price: this.price,
