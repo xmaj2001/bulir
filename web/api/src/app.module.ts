@@ -14,6 +14,7 @@ import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
 import { AppController } from "@modules/app/app.controller";
 import { AppService } from "@modules/app/app.service";
 import { ServiceModule } from "@modules/service/service.module";
+import { BookingModule } from "@modules/booking/booking.module";
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ServiceModule } from "@modules/service/service.module";
     AuthModule.register(),
     UserModule.register(),
     ServiceModule.register(),
+    BookingModule.register(),
   ],
   controllers: [AppController],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }, AppService],

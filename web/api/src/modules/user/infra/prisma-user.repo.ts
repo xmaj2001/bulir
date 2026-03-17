@@ -14,6 +14,31 @@ export class PrismaUserRepository extends UserRepository {
     super();
   }
 
+  async deposit(
+    userId: string,
+    balanceBefore: number,
+    balanceAfter: number,
+  ): Promise<void> {
+    const amount = balanceAfter - balanceBefore;
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: { balance: balanceAfter },
+      });
+
+      await tx.walletTransaction.create({
+        data: {
+          userId,
+          type: "CREDIT",
+          reason: "MANUAL_ADJUSTMENT",
+          amount,
+          balanceBefore,
+          balanceAfter,
+        },
+      });
+    });
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const raw = await this.prisma.user.findUnique({
       where: { id },
@@ -59,6 +84,7 @@ export class PrismaUserRepository extends UserRepository {
           passwordHash: user.passwordHash,
           avatarUrl: user.avatarUrl,
           role: user.role,
+          balance: user.balance,
           lastLoginAt: user.lastLoginAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -71,6 +97,7 @@ export class PrismaUserRepository extends UserRepository {
           passwordHash: user.passwordHash,
           avatarUrl: user.avatarUrl,
           role: user.role,
+          balance: user.balance,
           lastLoginAt: user.lastLoginAt,
           updatedAt: user.updatedAt,
         },
@@ -121,6 +148,7 @@ export class PrismaUserRepository extends UserRepository {
       passwordHash: raw.passwordHash,
       avatarUrl: raw.avatarUrl,
       role: raw.role as Role,
+      balance: raw.balance,
       lastLoginAt: raw.lastLoginAt,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

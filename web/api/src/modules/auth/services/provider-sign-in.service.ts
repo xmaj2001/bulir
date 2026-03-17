@@ -8,19 +8,8 @@ import { UserEntity } from "@modules/user/entities/user.entity";
 
 const PROVIDER_MAP: Record<string, AuthProvider> = {
   google: AuthProvider.GOOGLE,
-  github: AuthProvider.GITHUB,
-  intra42: AuthProvider.INTRA42,
 };
 
-/**
- * ProviderSignInService — login/registo via OAuth provider.
- *
- * Fluxo:
- *  1. Tenta encontrar user pelo email
- *  2. Se existe → liga o provider à conta (se não está ligado)
- *  3. Se não existe → cria conta nova com email verificado (provider garante)
- *  4. Devolve token pair
- */
 @Injectable()
 export class ProviderSignInService {
   private readonly logger = new Logger(ProviderSignInService.name);

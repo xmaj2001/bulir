@@ -42,8 +42,8 @@ export class AuthSessionController {
   ) {
     const rt = req.cookies?.["refresh_token"];
     const result = await this.refreshToken.execute(rt);
-    setRefreshCookie(res, this.config, result.refreshToken);
-    return { accessToken: result.accessToken };
+    setRefreshCookie(res, this.config, result.refresh_token);
+    return { access_token: result.access_token };
   }
 
   @Post("sign-out")

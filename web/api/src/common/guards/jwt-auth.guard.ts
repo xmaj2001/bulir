@@ -59,6 +59,10 @@ export class JwtAuthGuard implements CanActivate {
 
   private extractToken(req: Request): string | null {
     const auth = req.headers.authorization ?? "";
-    return auth.startsWith("Bearer ") ? auth.slice(7) : null;
+    if (auth.startsWith("Bearer ")) {
+      return auth.slice(7);
+    }
+
+    return req.cookies?.["access_token"] ?? null;
   }
 }

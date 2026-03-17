@@ -1,20 +1,14 @@
 import { Controller, Post, Body, Get, UseGuards } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { CreateServiceService } from "../services/create-service.service";
-import { ServiceRepository } from "../repository/service.repo";
 import { CreateServiceInput } from "../inputs/create-service.input";
 import {
   AuthUser,
   CurrentUser,
 } from "@common/decorators/current-user.decorator";
-import { Roles } from "@common/decorators/roles.decorator";
-import { Role } from "@modules/user/entities/enums/role.enum";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Public } from "@common/decorators/public.decorator";
 import { GetServiceService } from "../services/get-service.service";
-import { CreateBookingService } from "../services/create-booking.service";
-import { CreateBookingInput } from "../inputs/create-booking.input";
-import { BookingRepository } from "../repository/booking.repo";
 
 @ApiTags("Services")
 @Controller("services")
@@ -23,14 +17,12 @@ export class ServiceController {
   constructor(
     private readonly createService: CreateServiceService,
     private readonly getService: GetServiceService,
-    private readonly createBooking: CreateBookingService,
-    private readonly bookingRepo: BookingRepository,
   ) {}
 
   @Post()
   // @Roles(Role.PROVIDER, Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Cria um novo serviço (Apenas Providers/Admins)" })
+  @ApiOperation({ summary: "Cria um novo serviço" })
   async create(
     @CurrentUser() user: AuthUser,
     @Body() input: CreateServiceInput,
@@ -50,30 +42,9 @@ export class ServiceController {
   @Get("mine")
   // @Roles(Role.PROVIDER, Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Lista os meus serviços (Apenas Providers/Admins)" })
+  @ApiOperation({ summary: "Lista os meus serviços" })
   async findMine(@CurrentUser() user: AuthUser) {
     const services = await this.getService.findMine(user.sub);
     return services;
-  }
-
-  // ── Bookings ──────────────────────────────────────────────────────────────
-
-  @Post("bookings")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Cria uma nova reserva" })
-  async createBookingEndpoint(
-    @CurrentUser() user: AuthUser,
-    @Body() input: CreateBookingInput,
-  ) {
-    const booking = await this.createBooking.execute(user.sub, input);
-    return booking;
-  }
-
-  @Get("bookings/mine")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Lista as minhas reservas (como cliente)" })
-  async findMyBookings(@CurrentUser() user: AuthUser) {
-    const bookings = await this.bookingRepo.findByClientId(user.sub);
-    return bookings.map((b) => b.publicData());
   }
 }

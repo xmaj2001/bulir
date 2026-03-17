@@ -8,8 +8,8 @@ import {
 } from "class-validator";
 
 enum Role {
-  PROVIDER = "PROVIDER",
-  CLIENT = "CLIENT",
+  USER = "USER",
+  ADMIN = "ADMIN",
 }
 
 export class NifSignUpInput {
@@ -25,9 +25,9 @@ export class NifSignUpInput {
   @MaxLength(100, { message: "Nome muito longo" })
   name: string;
 
-  @ApiProperty({ example: `${Role.PROVIDER}` })
+  @ApiProperty({ example: `${Role.USER}` })
   @IsString()
-  @IsEnum(Role, { message: `Role deve ser ${Role.PROVIDER} ou ${Role.CLIENT}` })
+  @IsEnum(Role, { message: `Role deve ser ${Role.USER} ou ${Role.ADMIN}` })
   role: Role;
 
   @ApiProperty({

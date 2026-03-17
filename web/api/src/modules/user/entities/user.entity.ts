@@ -14,6 +14,7 @@ interface UserProps {
   passwordHash?: string | null;
   role?: Role;
   lastLoginAt?: Date | null;
+  balance?: number;
   createdAt?: Date;
   updatedAt?: Date;
   accounts?: AuthProviderAccountEntity[];
@@ -28,6 +29,7 @@ export class UserEntity extends BaseEntity {
   public passwordHash: string | null;
   public role: Role;
   public lastLoginAt: Date | null;
+  public balance: number;
   private _accounts: AuthProviderAccountEntity[];
   private _events: DomainEvent[] = [];
 
@@ -39,8 +41,9 @@ export class UserEntity extends BaseEntity {
     this.avatarUrl = p.avatarUrl ?? null;
     this.emailVerified = p.emailVerified ?? false;
     this.passwordHash = p.passwordHash ?? null;
-    this.role = p.role ?? Role.CLIENT;
+    this.role = p.role ?? Role.USER;
     this.lastLoginAt = p.lastLoginAt ?? null;
+    this.balance = p.balance ?? Number(process.env.INITIAL_BALANCE || 10000);
     this._accounts = p.accounts ?? [];
   }
 
@@ -92,6 +95,16 @@ export class UserEntity extends BaseEntity {
   get domainEvents() {
     return [...this._events];
   }
+
+  getbalance() {
+    return this.balance;
+  }
+
+  updateBalance(amount: number): void {
+    this.balance += amount;
+    this.touch();
+  }
+
   clearEvents() {
     this._events = [];
   }
@@ -108,6 +121,7 @@ export class UserEntity extends BaseEntity {
       avatarUrl: this.avatarUrl,
       role: this.role,
       lastLoginAt: this.lastLoginAt,
+      balance: this.balance,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
