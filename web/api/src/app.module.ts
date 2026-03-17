@@ -4,11 +4,11 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { JwtModule } from "@nestjs/jwt";
 import { BullModule } from "@nestjs/bullmq";
 import { LoggerModule } from "nestjs-pino";
-import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+// import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
 
 import { appConfig } from "@config/app.config";
-import { throttlerConfig } from "@config/throttler.config";
+// import { throttlerConfig } from "@config/throttler.config";
 import { bullConfig } from "@config/bull.config";
 import { jwtConfig } from "@config/jwt.config";
 import { loggerConfig } from "@config/logger.config";
@@ -28,11 +28,11 @@ import { BookingModule } from "@modules/booking/booking.module";
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [appConfig] }),
 
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: throttlerConfig,
-    }),
+    // ThrottlerModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: throttlerConfig,
+    // }),
 
     LoggerModule.forRootAsync({
       inject: [ConfigService],
@@ -64,7 +64,7 @@ import { BookingModule } from "@modules/booking/booking.module";
 
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // { provide: APP_GUARD, useClass: ThrottlerGuard },
     AppService,
   ],
 })

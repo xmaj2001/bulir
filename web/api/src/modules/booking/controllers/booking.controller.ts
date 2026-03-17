@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, UseGuards } from "@nestjs/common";
-import { Throttle } from "@nestjs/throttler";
+// import { Throttle } from "@nestjs/throttler";
 import {
   ApiTags,
   ApiOperation,
@@ -34,7 +34,7 @@ export class BookingController {
   ) {}
 
   @Post()
-  @Throttle({ high: {} })
+  // @Throttle({ high: {} })
   @ApiBearerAuth()
   @ApiResponse({
     status: 429,
@@ -51,7 +51,7 @@ export class BookingController {
   }
 
   @Get("mine")
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @ApiBearerAuth()
   @ApiOperation({
     summary: "Lista as minhas reservas (como cliente)",
@@ -78,7 +78,7 @@ export class BookingController {
   }
 
   @Post(":id/cancel")
-  @Throttle({ critical_auth: {} })
+  // @Throttle({ critical_auth: {} })
   @ApiBearerAuth()
   @ApiOperation({ summary: "Cancela uma reserva" })
   async cancelBookingEndpoint(

@@ -15,7 +15,7 @@ import { Public } from "@common/decorators/public.decorator";
 import { setRefreshCookie } from "../helpers/cookie.helper";
 import { ConfigService } from "@nestjs/config";
 import { RateLimitResponse } from "@common/responses/envelope.response";
-import { Throttle } from "@nestjs/throttler";
+// import { Throttle } from "@nestjs/throttler";
 
 @ApiTags("Auth — Provider")
 @Public()
@@ -34,7 +34,7 @@ export class AuthProviderController {
   ) {}
 
   @Post("provider")
-  @Throttle({ critical_auth: {} })
+  // @Throttle({ critical_auth: {} })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Login/Registo via OAuth (Google, GitHub, 42Intra)",

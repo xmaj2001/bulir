@@ -6,7 +6,7 @@ import {
   ApiResponse,
   ApiOperation,
 } from "@nestjs/swagger";
-import { Throttle } from "@nestjs/throttler";
+// import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
 import { WalletService } from "../services/wallet.service";
 import {
@@ -37,7 +37,7 @@ export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
   @Get("me")
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @ApiOperation({ summary: "Carteira do usuário" })
   @ApiResponse({
     status: 200,
@@ -59,7 +59,7 @@ export class WalletController {
   }
 
   @Get("me/transactions")
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
   @ApiQuery({ name: "type", required: false, enum: ["DEBIT", "CREDIT"] })

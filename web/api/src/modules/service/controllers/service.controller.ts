@@ -14,7 +14,7 @@ import {
   ApiResponse,
   ApiQuery,
 } from "@nestjs/swagger";
-import { Throttle } from "@nestjs/throttler";
+// import { Throttle } from "@nestjs/throttler";
 import { CreateServiceService } from "../services/create-service.service";
 import { CreateServiceInput } from "../inputs/create-service.input";
 import {
@@ -52,7 +52,7 @@ export class ServiceController {
   ) {}
 
   @Post()
-  @Throttle({ high: {} })
+  // @Throttle({ high: {} })
   @ApiBearerAuth()
   @ApiOperation({ summary: "Cria um novo serviço" })
   @ApiResponse({
@@ -69,7 +69,7 @@ export class ServiceController {
   }
 
   @Get()
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Lista todos os serviços ativos" })
   @ApiResponse({
@@ -96,7 +96,7 @@ export class ServiceController {
   }
 
   @Get("search")
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Busca serviços por nome/descrição e preço" })
   @ApiQuery({ name: "q", required: false, type: String })
@@ -126,7 +126,7 @@ export class ServiceController {
   }
 
   @Get(":id")
-  @Throttle({ low: {} })
+  // @Throttle({ low: {} })
   @Public()
   @ApiOperation({ summary: "Busca um serviço pelo ID" })
   @ApiResponse({

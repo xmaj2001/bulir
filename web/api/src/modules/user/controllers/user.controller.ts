@@ -12,7 +12,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
-import { Throttle } from "@nestjs/throttler";
+// import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
 import {
   AuthUser,
@@ -50,7 +50,7 @@ export class UserController {
   }
 
   @Patch("me")
-  @Throttle({ critical_auth: {} })
+  // @Throttle({ critical_auth: {} })
   @ApiOperation({ summary: "Actualizar perfil do utilizador autenticado" })
   @ApiResponse({ status: 200, description: "Perfil actualizado" })
   @ApiResponse({ status: 404, description: "Utilizador não encontrado" })
