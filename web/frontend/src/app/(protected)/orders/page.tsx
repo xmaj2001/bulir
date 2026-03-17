@@ -52,7 +52,7 @@ export default function OrdersPage() {
                 key={booking.id}
                 booking={booking}
                 i={i}
-                isProviderView
+                isProviderView={true}
               />
             ))}
           </div>

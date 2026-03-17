@@ -8,10 +8,10 @@ import {
   Settings,
   LogOut,
   Briefcase,
-  Users,
   Calendar,
   User,
   ShoppingCart,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -47,6 +47,12 @@ export default function Sidebar() {
       label: "Perfil",
       href: "/profile",
       icon: User,
+    },
+    {
+      label: "Carteira",
+      href: "/wallet",
+      icon: Wallet,
+      show: true,
     },
   ];
 

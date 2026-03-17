@@ -3,7 +3,7 @@ import {
   getMyBookings,
   createBooking,
   getProviderBookings,
-  confirmBooking,
+  completeBooking,
   cancelBooking,
 } from "@/lib/api";
 import { CreateBookingInput } from "@/schemas/service.schema";
@@ -45,17 +45,17 @@ export function useCreateBooking() {
   });
 }
 
-export function useConfirmBooking() {
+export function useCompleteBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await confirmBooking(id);
+      const res = await completeBooking(id);
       if (!res.success) throw res;
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings", "mine", "auth"] });
     },
   });
 }
