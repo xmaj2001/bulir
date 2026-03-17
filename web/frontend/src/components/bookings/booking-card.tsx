@@ -11,11 +11,12 @@ import {
   MoreHorizontal,
   Check,
   X,
+  ShoppingBagIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ApiBooking, ApiBookingStatus } from "@/lib/api";
-import { useConfirmBooking, useCancelBooking } from "@/hooks/use-bookings";
+import { useCancelBooking, useCompleteBooking } from "@/hooks/use-bookings";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 const statusConfig = {
   [ApiBookingStatus.PENDING]: {
@@ -62,10 +64,10 @@ export default function BookingCard({
     statusConfig[booking.status] || statusConfig[ApiBookingStatus.PENDING];
   const StatusIcon = config.icon;
 
-  const { mutate: confirm, isPending: isConfirming } = useConfirmBooking();
+  const { mutate: complete, isPending: isCompleting } = useCompleteBooking();
   const { mutate: cancel, isPending: isCancelling } = useCancelBooking();
 
-  const handleConfirm = () => confirm(booking.id);
+  const handleComplete = () => complete(booking.id);
   const handleCancel = () => cancel({ id: booking.id });
 
   return (
@@ -75,6 +77,19 @@ export default function BookingCard({
       transition={{ delay: i * 0.05 }}
       className="group bg-card border border-border p-6 rounded-[2rem] hover:border-primary/50 transition-all duration-300 flex flex-col md:flex-row md:items-center gap-6"
     >
+      <div className="flex items-center justify-between md:flex-col md:items-end gap-3 border-t md:border-t-0 md:border-r border-border pt-4 md:pt-0 md:px-6">
+        {booking.service.imageUrl ? (
+          <Image
+            src={booking.service.imageUrl}
+            alt={booking.service.name}
+            width={100}
+            height={100}
+          />
+        ) : (
+          <ShoppingBagIcon className="w-10 h-10" />
+        )}
+      </div>
+
       <div className="flex-1 space-y-2">
         <div className="flex items-center gap-3">
           <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
@@ -152,44 +167,44 @@ export default function BookingCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {isProviderView && booking.status === ApiBookingStatus.PENDING && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl h-8 bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500 hover:text-white font-bold"
-                onClick={handleConfirm}
-                disabled={isConfirming}
-              >
-                {isConfirming ? "..." : <Check className="w-4 h-4 mr-1" />}
-                Confirmar
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl h-8 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white font-bold"
-                onClick={handleCancel}
-                disabled={isCancelling}
-              >
-                {isCancelling ? "..." : <X className="w-4 h-4 mr-1" />}
-                Cancelar
-              </Button>
-            </>
-          )}
-
-          {!isProviderView &&
+          {isProviderView &&
             (booking.status === ApiBookingStatus.PENDING ||
               booking.status === ApiBookingStatus.CONFIRMED) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-xl text-xs font-bold h-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                onClick={handleCancel}
-                disabled={isCancelling}
-              >
-                Cancelar
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl h-8 bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500 hover:text-white font-bold"
+                  onClick={handleComplete}
+                  disabled={isCompleting}
+                >
+                  {isCompleting ? "..." : <Check className="w-4 h-4 mr-1" />}
+                  Concluir
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl h-8 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white font-bold"
+                  onClick={handleCancel}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? "..." : <X className="w-4 h-4 mr-1" />}
+                  Cancelar
+                </Button>
+              </>
             )}
+
+          {!isProviderView && booking.status === ApiBookingStatus.PENDING && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-xl text-xs font-bold h-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+              onClick={handleCancel}
+              disabled={isCancelling}
+            >
+              Cancelar
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

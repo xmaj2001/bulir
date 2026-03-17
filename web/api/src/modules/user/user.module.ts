@@ -11,6 +11,8 @@ import { EventBusPort } from "@shared/adapters/event-bus/event-bus.port";
 import { EventBusAdapter } from "@shared/adapters/event-bus/event-bus.adapter";
 import { UserGateway } from "./websocket/user.gateway";
 import { DepositListener } from "./listeners/desposit.listener";
+import { WalletTransactionRepository } from "./repository/wallet-transaction.repo";
+import { PrismaWalletTransactionRepository } from "./infra/prisma-wallet-transaction.repo";
 
 @Module({})
 export class UserModule {
@@ -26,8 +28,12 @@ export class UserModule {
         DepositListener,
         { provide: EventBusPort, useClass: EventBusAdapter },
         { provide: UserRepository, useClass: PrismaUserRepository },
+        {
+          provide: WalletTransactionRepository,
+          useClass: PrismaWalletTransactionRepository,
+        },
       ],
-      exports: [UserRepository],
+      exports: [UserRepository, WalletTransactionRepository],
     };
   }
 
@@ -43,6 +49,10 @@ export class UserModule {
         DepositListener,
         { provide: EventBusPort, useClass: EventBusAdapter },
         { provide: UserRepository, useClass: FakeUserRepository },
+        {
+          provide: WalletTransactionRepository,
+          useClass: PrismaWalletTransactionRepository,
+        },
       ],
       exports: [UserRepository],
     };

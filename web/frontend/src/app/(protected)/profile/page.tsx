@@ -12,30 +12,26 @@ import {
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { useWalletSocket } from "@/hooks/use-wallet-socket";
-import { useSession } from "next-auth/react";
+import { useMe } from "@/hooks/use-me";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
-  const user = session?.user;
-  useWalletSocket();
+  const { data: user, isLoading } = useMe();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   const infoItems = [
     { label: "Email", value: user?.email || "Sem email", icon: Mail },
     {
       label: "NIF",
-      value: (user as { nif?: string })?.nif || "Não fornecido",
+      value: user?.nif || "Não fornecido",
       icon: Hash,
     },
-    {
-      label: "Cargo",
-      value:
-        (user as { role?: string })?.role === "PROVIDER"
-          ? "Prestador de Serviços"
-          : "Cliente",
-      icon: Shield,
-    },
-    { label: "ID de Conta", value: user?.id || "N/A", icon: BadgeCheck },
   ];
 
   return (
@@ -61,31 +57,13 @@ export default function ProfilePage() {
 
           <div className="relative">
             <div className="w-32 h-32 rounded-full border-4 border-primary/20 bg-primary/10 flex items-center justify-center overflow-hidden shadow-glow-sm">
-              {user?.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.name || "Avatar"}
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
+              {user?.avatarUrl && (
                 <UserIcon className="w-16 h-16 text-primary" />
               )}
             </div>
             <div className="absolute -bottom-2 -right-2 bg-background border border-border p-2 rounded-full">
               <BadgeCheck className="w-5 h-5 text-primary" />
             </div>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold">{user?.name}</h2>
-            <Badge
-              variant="outline"
-              className="mt-2 border-primary/50 text-primary uppercase tracking-widest text-[10px]"
-            >
-              {user?.role}
-            </Badge>
           </div>
 
           <div className="w-full pt-6 border-t border-border/50">
@@ -101,12 +79,12 @@ export default function ProfilePage() {
                 currency: "AOA",
               }).format(user?.balance || 0)}
             </div>
-            <Button
+            {/* <Button
               size="sm"
               className="w-full mt-4 rounded-xl font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
             >
               Carregar Saldo
-            </Button>
+            </Button> */}
           </div>
         </motion.div>
 
@@ -157,13 +135,6 @@ export default function ProfilePage() {
               >
                 <Hash className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>Alterar Senha de Acesso</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start rounded-2xl h-12 gap-3 group"
-              >
-                <BadgeCheck className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span>Configurar Verificação em Duas Etapas</span>
               </Button>
             </div>
 

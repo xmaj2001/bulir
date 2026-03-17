@@ -90,6 +90,56 @@ export type ServicesResponse = ApiEnvelope<ApiService[]>;
 export type BookingResponse = ApiEnvelope<ApiBooking>;
 export type BookingsResponse = ApiEnvelope<ApiBooking[]>;
 
+// ── Wallet Types ──────────────────────────────────────────────────────────────
+
+export interface WalletServiceRef {
+  name: string;
+}
+
+export interface WalletBookingRef {
+  id: string;
+  status: string;
+  service: WalletServiceRef;
+}
+
+export interface WalletTransaction {
+  id: string;
+  type: "DEBIT" | "CREDIT";
+  reason:
+    | "BOOKING_PAYMENT"
+    | "BOOKING_REFUND"
+    | "BOOKING_RECEIPT"
+    | "MANUAL_ADJUSTMENT";
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  bookingId?: string;
+  createdAt: string;
+  booking?: WalletBookingRef;
+}
+
+export interface WalletSummary {
+  balance: number;
+  totalTx: number;
+  recentTx: WalletTransaction[];
+}
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedTransactions {
+  items: WalletTransaction[];
+  meta: PaginationMeta;
+}
+
+export type WalletSummaryResponse = ApiEnvelope<WalletSummary>;
+export type PaginatedTransactionsResponse = ApiEnvelope<PaginatedTransactions>;
+export type WalletTransactionResponse = ApiEnvelope<WalletTransaction>;
+
 // ── Core Fetch ────────────────────────────────────────────────────────────────
 
 interface FetchOptions extends RequestInit {
@@ -208,22 +258,22 @@ export function createBooking(data: {
   notes?: string;
   scheduledAt?: Date | string;
 }): Promise<BookingResponse> {
-  return apiFetch<BookingResponse>("/services/bookings", {
+  return apiFetch<BookingResponse>("/bookings", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 export async function getMyBookings(): Promise<BookingsResponse> {
-  return apiFetch<BookingsResponse>("/services/bookings/mine");
+  return apiFetch<BookingsResponse>("/bookings/mine");
 }
 
 export async function getProviderBookings(): Promise<BookingsResponse> {
-  return apiFetch<BookingsResponse>("/services/bookings/provider");
+  return apiFetch<BookingsResponse>("/bookings/provider");
 }
 
-export function confirmBooking(id: string): Promise<BookingResponse> {
-  return apiFetch<BookingResponse>(`/services/bookings/${id}/confirm`, {
+export function completeBooking(id: string): Promise<BookingResponse> {
+  return apiFetch<BookingResponse>(`/bookings/${id}/complete`, {
     method: "POST",
   });
 }
@@ -232,8 +282,39 @@ export function cancelBooking(
   id: string,
   reason?: string,
 ): Promise<BookingResponse> {
-  return apiFetch<BookingResponse>(`/services/bookings/${id}/cancel`, {
+  return apiFetch<BookingResponse>(`/bookings/${id}/cancel`, {
     method: "POST",
     body: JSON.stringify({ reason }),
   });
+}
+
+// ── Wallet Endpoints ──────────────────────────────────────────────────────────
+
+export function getWalletMe(): Promise<WalletSummaryResponse> {
+  return apiFetch<WalletSummaryResponse>("/wallet/me");
+}
+
+export function listTransactions(
+  params: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    reason?: string;
+  } = {},
+): Promise<PaginatedTransactionsResponse> {
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", params.page.toString());
+  if (params.limit) query.append("limit", params.limit.toString());
+  if (params.type) query.append("type", params.type);
+  if (params.reason) query.append("reason", params.reason);
+
+  return apiFetch<PaginatedTransactionsResponse>(
+    `/wallet/me/transactions?${query.toString()}`,
+  );
+}
+
+export function getTransactionDetail(
+  id: string,
+): Promise<WalletTransactionResponse> {
+  return apiFetch<WalletTransactionResponse>(`/wallet/me/transactions/${id}`);
 }
