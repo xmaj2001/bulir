@@ -109,9 +109,7 @@ export default function WalletPage() {
               </Button>
             </div>
             <div className="text-4xl font-black text-glow-sm tracking-tighter break-all">
-              {showBalance
-                ? currencyFormatter.format(summary?.balance || 0)
-                : "••••••••"}
+              {currencyFormatter.format(summary?.balance || 0)}
             </div>
           </div>
 
