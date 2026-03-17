@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// PostgreSQL (padrão)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VerificationType {
+  EMAIL
+  PASSWORD_RESET
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  GITHUB
+  INTRA42
+}
+
+enum BookingStatus {
+  PENDING
+  CANCELLED
+  CONFIRMED
+  COMPLETED
+}
+
+enum WalletTxType {
+  DEBIT
+  CREDIT
+}
+
+enum WalletTxReason {
+  BOOKING_PAYMENT
+  BOOKING_REFUND
+  BOOKING_RECEIPT
+  MANUAL_ADJUSTMENT
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  nif           String?   @unique
+  email         String?   @unique
+  emailVerified Boolean   @default(false)
+  passwordHash  String?
+  avatarUrl     String?
+  role          Role      @default(USER)
+  balance       Decimal   @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+
+  accounts AuthProviderAccount[]
+
+  services           Service[]
+  bookingsAsClient   Booking[]           @relation("BookingClient")
+  walletTransactions WalletTransaction[]
+
+  @@index([role])
+  @@index([nif])
+  @@map("user")
+}
+
+model AuthProviderAccount {
+  id         String       @id @default(uuid())
+  providerId String?
+  provider   AuthProvider
+  userId     String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String           @id @default(uuid())
+  identifier String
+  value      String
+  type       VerificationType @default(EMAIL)
+  expiresAt  DateTime
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  providerId  String
+  imageUrl    String?
+  name        String
+  description String
+  price       Decimal  @db.Decimal(18, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  provider User      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([providerId])
+  @@index([isActive])
+  @@index([providerId, isActive])
+  @@map("service")
+}
+
+// ── Bookings ──────────────────────────────────────────────────────────────────
+
+/// Aggregate Root — Booking
+/// Representa uma reserva feita por um CLIENT num Service de um PROVIDER.
+/// Ciclo de vida: PENDING → CONFIRMED → COMPLETED
+///                           └──────→ CANCELLED
+///
+/// Invariantes de domínio:
+///   - Só pode ser criado se client.balance >= service.price
+///   - Dedução de saldo e criação do Booking são atómicas (Prisma transaction)
+///   - Só o CLIENT dono pode cancelar (se PENDING ou CONFIRMED)
+///   - Só o PROVIDER dono do serviço pode confirmar/completar
+model Booking {
+  id           String        @id @default(uuid())
+  clientId     String
+  serviceId    String
+  status       BookingStatus @default(PENDING)
+  totalPrice   Decimal       @db.Decimal(18, 2) // snapshot do preço no momento da reserva
+  notes        String?
+  scheduledAt  DateTime?
+  confirmedAt  DateTime?
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+  cancelReason String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  client             User                @relation("BookingClient", fields: [clientId], references: [id], onDelete: Restrict)
+  service            Service             @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  walletTransactions WalletTransaction[]
+
+  @@index([clientId, createdAt])
+  @@index([serviceId, createdAt])
+  @@index([status])
+  @@map("booking")
+}
+
+// ── Wallet ────────────────────────────────────────────────────────────────────
+
+/// WalletTransaction — registo imutável de cada movimento de saldo
+/// Garante rastreabilidade completa do histórico financeiro.
+///
+/// Fluxo por reserva:
+///   BOOKING_PAYMENT → DEBIT  no CLIENT   (ao criar reserva)
+///   BOOKING_RECEIPT → CREDIT no PROVIDER (ao COMPLETED)
+///   BOOKING_REFUND  → CREDIT no CLIENT   (ao CANCELLED)
+model WalletTransaction {
+  id            String         @id @default(uuid())
+  userId        String
+  bookingId     String?
+  type          WalletTxType   @default(CREDIT)
+  reason        WalletTxReason @default(BOOKING_PAYMENT)
+  amount        Decimal        @db.Decimal(18, 2)
+  balanceBefore Decimal        @db.Decimal(18, 2)
+  balanceAfter  Decimal        @db.Decimal(18, 2)
+  createdAt     DateTime       @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([bookingId])
+  @@map("wallet_transaction")
+}
