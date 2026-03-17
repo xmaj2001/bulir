@@ -5,6 +5,7 @@ import { SkipThrottle } from "@nestjs/throttler";
 
 @Controller("")
 @Public()
+@SkipThrottle()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 

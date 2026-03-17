@@ -1,7 +1,7 @@
 {
-  "name": "transcender",
+  "name": "qcena",
   "version": "0.0.1",
-  "description": "Transcender — NestJS 11 + DDD + Ports & Adapters",
+  "description": "Qcena — NestJS 11 + DDD + Ports & Adapters",
   "author": "XLobe-Tech",
   "private": true,
   "license": "UNLICENSED",
