@@ -3,6 +3,7 @@ export const appConfig = () => ({
     name: process.env.APP_NAME ?? "Transcender",
     port: parseInt(process.env.PORT ?? "3000", 10),
     env: process.env.NODE_ENV ?? "development",
+    corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
     isDev: (process.env.NODE_ENV ?? "development") === "development",
     isProd: process.env.NODE_ENV === "production",
   },

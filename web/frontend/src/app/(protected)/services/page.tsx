@@ -7,6 +7,7 @@ import { useMyServices } from "@/hooks/use-services";
 import ServiceCard from "@/components/services/service-card";
 import CreateServiceModal from "@/components/services/create-service-modal";
 import { useSession } from "next-auth/react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function ServicesPage() {
   const { data: services, isLoading } = useMyServices();
@@ -26,6 +27,7 @@ export default function ServicesPage() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input

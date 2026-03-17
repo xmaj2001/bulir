@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMyBookings } from "@/hooks/use-bookings";
 import BookingCard from "@/components/bookings/booking-card";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function BookingsPage() {
   const { data: clientBookings, isLoading: loadingClient } = useMyBookings();
@@ -22,6 +23,7 @@ export default function BookingsPage() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input

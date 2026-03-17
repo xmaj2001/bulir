@@ -54,6 +54,7 @@ async function bootstrap() {
 
   await app.listen(port);
   console.log(`\n🚀 ${name}: http://localhost:${port}`);
+  console.log(`\n🚀 CORS: ${config.get<string>("app.corsOrigin")}`);
   if (!isProd) console.log(`📚 Swagger:  http://localhost:${port}/swagger`);
 }
 

@@ -1,7 +1,12 @@
 import { getSession } from "next-auth/react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const IS_SERVER = typeof window === "undefined";
 
+// No Servidor (Docker): usa o nome do serviço 'api'
+// No Navegador: usa localhost através da porta exposta
+const API_URL = IS_SERVER
+  ? "http://api:5000"
+  : process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 // ── Tipos de erro ──────────────────────────────────────────────────────────────
 
 export interface ApiError {
@@ -232,10 +237,8 @@ export function getServices(): Promise<ServicesResponse> {
   return apiFetch<ServicesResponse>("/services");
 }
 
-export async function getMyServices(): Promise<ServicesResponse> {
-  const response = await apiFetch<ServicesResponse>("/services/mine");
-  console.log("getMyServices", response);
-  return response;
+export function getMyServices(): Promise<ServicesResponse> {
+  return apiFetch<ServicesResponse>("/services/mine");
 }
 
 export function createService(data: {

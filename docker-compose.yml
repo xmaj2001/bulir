@@ -17,10 +17,10 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 10s
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   frontend:
     build: ./web/frontend

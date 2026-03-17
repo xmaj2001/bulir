@@ -28,7 +28,6 @@ export class SignUpService {
     const user = new UserEntity({
       name: input.name,
       email: input.email,
-      role: input.role,
       passwordHash,
       emailVerified: false,
     });
@@ -51,7 +50,6 @@ export class SignUpService {
     const user = new UserEntity({
       name: input.name,
       nif: input.nif,
-      role: input.role,
       passwordHash,
       emailVerified: false,
     });

@@ -14,8 +14,6 @@ import {
   ApiOperation,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
-import { RolesGuard } from "@common/guards/roles.guard";
-import { Roles } from "@common/decorators/roles.decorator";
 import { WalletService } from "../services/wallet.service";
 import {
   AuthUser,
@@ -65,11 +63,11 @@ export class WalletController {
   @ApiQuery({ name: "type", required: false, enum: ["DEBIT", "CREDIT"] })
   @ApiQuery({ name: "reason", required: false })
   @ApiOperation({ summary: "Listar transações" })
-  @ApiResponse({
-    status: 200,
-    type: ApiSuccessResponse(PaginatedTransactionsResponse),
-    description: "Transações listadas",
-  })
+  // @ApiResponse({
+  //   status: 200,
+  //   type: ApiSuccessResponse(PaginatedTransactionsResponse),
+  //   description: "Transações listadas",
+  // })
   @ApiResponse({
     status: 404,
     type: ApiErrorResponse,

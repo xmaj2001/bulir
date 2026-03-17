@@ -8,7 +8,9 @@ export default function ProtectedLayout({
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <Sidebar />
-      <main className="flex-1 p-6 lg:p-12 overflow-y-auto">{children}</main>
+      <main className="flex-1 p-6 lg:p-12 overflow-y-auto sm:ml-0 md:ml-64 ">
+        {children}
+      </main>
     </div>
   );
 }

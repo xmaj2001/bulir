@@ -25,11 +25,6 @@ export class NifSignUpInput {
   @MaxLength(100, { message: "Nome muito longo" })
   name: string;
 
-  @ApiProperty({ example: `${Role.USER}` })
-  @IsString()
-  @IsEnum(Role, { message: `Role deve ser ${Role.USER} ou ${Role.ADMIN}` })
-  role: Role;
-
   @ApiProperty({
     example: "Pass@1234",
     description: "Mín. 8 chars, 1 maiúscula, 1 número, 1 especial",

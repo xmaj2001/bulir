@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
-  Settings,
   LogOut,
   Briefcase,
   Calendar,
@@ -57,7 +56,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-full md:w-64 border-r border-border p-6 flex flex-col gap-8 bg-card h-full">
+    <aside className="w-full md:w-64 border-r border-border p-6 flex flex-col gap-8 bg-card sm:h-auto md:h-screen overflow-y-auto overflow-x-hidden fixed z-50">
       <div className="flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/Logo.png" alt="Logo" width={32} height={32} />
@@ -85,20 +84,6 @@ export default function Sidebar() {
             </Link>
           );
         })}
-
-        <div className="mt-4 pt-4 border-t border-border">
-          <Link href="/settings">
-            <Button
-              variant={pathname === "/settings" ? "default" : "ghost"}
-              className={cn(
-                "w-full justify-start gap-3",
-                pathname !== "/settings" && "text-muted-foreground",
-              )}
-            >
-              <Settings className="w-4 h-4" /> Configurações
-            </Button>
-          </Link>
-        </div>
       </nav>
 
       <Button
