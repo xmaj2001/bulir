@@ -98,8 +98,8 @@ export class BookingEntity extends BaseEntity {
   }
 
   cancel(reason?: string): void {
-    const cancellable = [BookingStatus.PENDING, BookingStatus.CONFIRMED];
-    if (!cancellable.includes(this.status)) {
+    const cancellable = [BookingStatus.CANCELLED, BookingStatus.COMPLETED];
+    if (cancellable.includes(this.status)) {
       throw new BadRequestException(
         `Não é possível cancelar uma reserva com status ${this.status}`,
       );
@@ -111,7 +111,8 @@ export class BookingEntity extends BaseEntity {
   }
 
   isCancellable(): boolean {
-    return this.status === BookingStatus.PENDING;
+    const cancellable = [BookingStatus.CANCELLED, BookingStatus.COMPLETED];
+    return !cancellable.includes(this.status);
   }
 
   isCompleted(): boolean {
