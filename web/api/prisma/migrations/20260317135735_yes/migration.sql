@@ -1,14 +1,14 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('CLIENT', 'PROVIDER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'PENDING', 'SUSPENDED', 'BANNED');
+CREATE TYPE "VerificationType" AS ENUM ('EMAIL', 'PASSWORD_RESET');
 
 -- CreateEnum
 CREATE TYPE "AuthProvider" AS ENUM ('EMAIL', 'GOOGLE', 'GITHUB', 'INTRA42');
 
 -- CreateEnum
-CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED');
+CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CANCELLED', 'CONFIRMED', 'COMPLETED');
 
 -- CreateEnum
 CREATE TYPE "WalletTxType" AS ENUM ('DEBIT', 'CREDIT');
@@ -16,20 +16,16 @@ CREATE TYPE "WalletTxType" AS ENUM ('DEBIT', 'CREDIT');
 -- CreateEnum
 CREATE TYPE "WalletTxReason" AS ENUM ('BOOKING_PAYMENT', 'BOOKING_REFUND', 'BOOKING_RECEIPT', 'MANUAL_ADJUSTMENT');
 
--- CreateEnum
-CREATE TYPE "ProfileVisibility" AS ENUM ('PUBLIC', 'PRIVATE');
-
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "nif" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+    "nif" TEXT,
+    "email" TEXT,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "passwordHash" TEXT,
     "avatarUrl" TEXT,
-    "role" "Role" NOT NULL DEFAULT 'CLIENT',
-    "status" "UserStatus" NOT NULL DEFAULT 'PENDING',
+    "role" "Role" NOT NULL DEFAULT 'USER',
     "balance" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -41,12 +37,9 @@ CREATE TABLE "user" (
 -- CreateTable
 CREATE TABLE "account" (
     "id" TEXT NOT NULL,
-    "accountId" TEXT,
     "providerId" TEXT,
     "provider" "AuthProvider" NOT NULL,
     "userId" TEXT NOT NULL,
-    "refreshToken" TEXT,
-    "refreshTokenExpiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -58,6 +51,7 @@ CREATE TABLE "verification" (
     "id" TEXT NOT NULL,
     "identifier" TEXT NOT NULL,
     "value" TEXT NOT NULL,
+    "type" "VerificationType" NOT NULL DEFAULT 'EMAIL',
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -66,23 +60,13 @@ CREATE TABLE "verification" (
 );
 
 -- CreateTable
-CREATE TABLE "password_reset" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "password_reset_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "service" (
     "id" TEXT NOT NULL,
     "providerId" TEXT NOT NULL,
+    "imageUrl" TEXT,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "price" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "price" DECIMAL(18,2) NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -131,9 +115,6 @@ CREATE UNIQUE INDEX "user_nif_key" ON "user"("nif");
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
-CREATE INDEX "user_status_idx" ON "user"("status");
-
--- CreateIndex
 CREATE INDEX "user_role_idx" ON "user"("role");
 
 -- CreateIndex
@@ -144,12 +125,6 @@ CREATE INDEX "account_userId_idx" ON "account"("userId");
 
 -- CreateIndex
 CREATE INDEX "verification_identifier_idx" ON "verification"("identifier");
-
--- CreateIndex
-CREATE UNIQUE INDEX "password_reset_token_key" ON "password_reset"("token");
-
--- CreateIndex
-CREATE INDEX "password_reset_userId_idx" ON "password_reset"("userId");
 
 -- CreateIndex
 CREATE INDEX "service_providerId_idx" ON "service"("providerId");

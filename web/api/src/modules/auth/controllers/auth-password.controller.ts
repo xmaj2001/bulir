@@ -12,10 +12,17 @@ import { ResetPasswordService } from "../services/reset-password.service";
 import { ResetPasswordInput } from "../inputs/reset-password.input";
 import { Public } from "@common/decorators/public.decorator";
 import { SendOTPInput } from "../inputs/send-otp.input";
+import { RateLimitResponse } from "@common/responses/envelope.response";
+// import { Throttle } from "@nestjs/throttler";
 
 @ApiTags("Auth — Password")
 @Public()
 @Controller("auth/password")
+@ApiResponse({
+  status: 429,
+  type: RateLimitResponse,
+  description: "Demasiadas tentativas",
+})
 export class AuthPasswordController {
   private readonly logger = new Logger(AuthPasswordController.name);
 
@@ -25,6 +32,7 @@ export class AuthPasswordController {
   ) {}
 
   @Post("forgot")
+  // @Throttle({ critical_signup: {} })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Solicitar reset de password" })
   @ApiResponse({ status: 200, description: "Código enviado se email existir" })
@@ -33,6 +41,7 @@ export class AuthPasswordController {
   }
 
   @Post("reset")
+  // @Throttle({ critical_auth: {} })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Redefinir password com OTP" })
   @ApiResponse({ status: 200, description: "Password actualizada" })

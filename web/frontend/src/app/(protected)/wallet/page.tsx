@@ -109,13 +109,7 @@ export default function WalletPage() {
               </Button>
             </div>
             <div className="text-4xl font-black text-glow-sm tracking-tighter break-all">
-              {isLoadingSummary ? (
-                <div className="h-10 w-48 bg-muted animate-pulse rounded-lg" />
-              ) : showBalance ? (
-                currencyFormatter.format(summary?.balance || 0)
-              ) : (
-                "••••••••"
-              )}
+              {currencyFormatter.format(summary?.balance || 0)}
             </div>
           </div>
 
@@ -124,9 +118,6 @@ export default function WalletPage() {
               <span className="text-muted-foreground">Total de Transações</span>
               <span className="font-bold">{summary?.totalTx || 0}</span>
             </div>
-            <Button className="w-full rounded-2xl h-12 font-bold shadow-glow-sm hover:shadow-glow transition-all">
-              Carregar Saldo
-            </Button>
           </div>
         </motion.div>
 

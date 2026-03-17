@@ -8,12 +8,10 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ApiBooking, ApiBookingStatus } from "@/lib/api";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Clock,
   MapPin,
-  User,
   MessageSquare,
   ShoppingBag,
   CheckCircle2,
@@ -196,8 +194,8 @@ export default function BookingDetailsSheet({
                 <AvatarImage
                   src={
                     isProviderView
-                      ? booking.client?.avatarUrl
-                      : booking.service.provider.avatarUrl
+                      ? booking.client?.avatarUrl || ""
+                      : booking.service.provider.avatarUrl || ""
                   }
                 />
                 <AvatarFallback className="font-bold text-lg">

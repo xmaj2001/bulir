@@ -14,3 +14,8 @@ logs:
 
 restart:
 	docker-compose down && docker-compose up -d
+
+re: down build up
+
+clean:
+	docker system prune -a --volumes

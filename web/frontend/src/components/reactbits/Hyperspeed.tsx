@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const hyperspeedPresets = {
   one: {
     onSpeedUp: () => {},
@@ -1219,6 +1220,7 @@ class App {
   leftCarLights: CarLights;
   rightCarLights: CarLights;
   leftSticks: LightsSticks;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fogUniforms: Record<string, { value: any }>;
   fovTarget: number;
   speedUpTarget: number;

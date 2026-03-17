@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  Request,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
 import {
   ApiTags,
   ApiBearerAuth,
@@ -13,6 +6,7 @@ import {
   ApiResponse,
   ApiOperation,
 } from "@nestjs/swagger";
+// import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "@common/guards/jwt-auth.guard";
 import { WalletService } from "../services/wallet.service";
 import {
@@ -22,6 +16,7 @@ import {
 import {
   ApiErrorResponse,
   ApiSuccessResponse,
+  RateLimitResponse,
 } from "@common/responses/envelope.response";
 import {
   PaginatedTransactionsResponse,
@@ -32,11 +27,17 @@ import {
 @ApiTags("Wallet")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@ApiResponse({
+  status: 429,
+  type: RateLimitResponse,
+  description: "Demasiadas tentativas",
+})
 @Controller("wallet")
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
   @Get("me")
+  // @Throttle({ low: {} })
   @ApiOperation({ summary: "Carteira do usuário" })
   @ApiResponse({
     status: 200,
@@ -58,16 +59,17 @@ export class WalletController {
   }
 
   @Get("me/transactions")
+  // @Throttle({ low: {} })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
   @ApiQuery({ name: "type", required: false, enum: ["DEBIT", "CREDIT"] })
   @ApiQuery({ name: "reason", required: false })
   @ApiOperation({ summary: "Listar transações" })
-  // @ApiResponse({
-  //   status: 200,
-  //   type: ApiSuccessResponse(PaginatedTransactionsResponse),
-  //   description: "Transações listadas",
-  // })
+  @ApiResponse({
+    status: 200,
+    type: ApiSuccessResponse(PaginatedTransactionsResponse),
+    description: "Transações listadas",
+  })
   @ApiResponse({
     status: 404,
     type: ApiErrorResponse,

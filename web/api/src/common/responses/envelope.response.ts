@@ -58,3 +58,22 @@ export class ApiErrorResponse {
   @ApiProperty({ example: "/wallet/me" })
   path: string;
 }
+
+export class RateLimitResponse {
+  @ApiProperty({ example: false })
+  success: boolean;
+
+  @ApiProperty({
+    example: {
+      code: 429,
+      message: "Demasiadas tentativas, por favor tenta novamente mais tarde.",
+    },
+  })
+  error: ApiErrorDetailResponse;
+
+  @ApiProperty({ example: "2026-03-17T10:00:00.000Z" })
+  ts: string;
+
+  @ApiProperty({ example: "/auth/sign-in/email" })
+  path: string;
+}

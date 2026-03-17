@@ -1,7 +1,7 @@
 {
-  "name": "transcender",
+  "name": "qcena",
   "version": "0.0.1",
-  "description": "Transcender — NestJS 11 + DDD + Ports & Adapters",
+  "description": "Qcena — NestJS 11 + DDD + Ports & Adapters",
   "author": "XLobe-Tech",
   "private": true,
   "license": "UNLICENSED",
@@ -25,6 +25,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
     "@nestjs/bullmq": "11.0.4",
     "@nestjs/common": "11.1.16",
     "@nestjs/config": "4.0.2",
@@ -44,6 +45,7 @@
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
     "cookie-parser": "1.4.7",
+    "ioredis": "^5.10.0",
     "nestjs-pino": "4.3.0",
     "nodemailer": "6.10.1",
     "pino": "9.6.0",
