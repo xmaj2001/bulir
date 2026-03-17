@@ -11,7 +11,6 @@ export class DepositListener {
   @OnEvent("USER.DEPOSIT")
   handle(event: DepositEvent) {
     this.logger.log(`Depósito ${event.userId} criado`);
-    this.userGateway.deposit(event);
     this.logger.log(`Evento DepositEvent emitido`);
   }
 }

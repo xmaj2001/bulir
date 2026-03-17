@@ -15,10 +15,30 @@ import { AppController } from "@modules/app/app.controller";
 import { AppService } from "@modules/app/app.service";
 import { ServiceModule } from "@modules/service/service.module";
 import { BookingModule } from "@modules/booking/booking.module";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [appConfig] }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: "short",
+          ttl: 1000,
+          limit: 3,
+        },
+        {
+          name: "medium",
+          ttl: 10000,
+          limit: 20,
+        },
+        {
+          name: "long",
+          ttl: 60000, // 1 minuto
+          limit: 100,
+        },
+      ],
+    }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
@@ -71,6 +91,10 @@ import { BookingModule } from "@modules/booking/booking.module";
     BookingModule.register(),
   ],
   controllers: [AppController],
-  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }, AppService],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    AppService,
+  ],
 })
 export class AppModule {}

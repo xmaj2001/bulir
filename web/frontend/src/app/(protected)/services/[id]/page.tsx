@@ -10,6 +10,7 @@ import {
   Clock,
   Star,
   MapPin,
+  Calendar,
 } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -33,16 +34,26 @@ export default function ServiceDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { data: session } = useSession();
-  const providerId = session?.user?.id;
+  const currentUserId = session?.user?.id;
   const { data: service, isLoading, error } = useService(id as string);
   const { mutate: createBooking, isPending } = useCreateBooking();
 
+  const isOwner = currentUserId === service?.providerId;
+
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [notes, setNotes] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
 
   const handleBooking = () => {
     createBooking(
-      { serviceId: service!.id },
+      {
+        serviceId: service!.id,
+        notes,
+        scheduledAt: scheduledAt
+          ? new Date(scheduledAt).toISOString()
+          : undefined,
+      },
       {
         onSuccess: () => {
           router.push("/bookings");
@@ -178,9 +189,58 @@ export default function ServiceDetailPage() {
               </div>
             </div>
 
-            {providerId !== service.providerId && (
+            {!isOwner && (
+              <div className="space-y-4 mb-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Data e Hora do Serviço
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      className="w-full bg-muted/30 border border-border rounded-xl h-11 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Notas Adicionais
+                  </label>
+                  <textarea
+                    placeholder="Ex: Tenho alergia a latex, traga ferramentas extras..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full bg-muted/30 border border-border rounded-xl p-4 text-sm min-h-[100px] resize-none focus:ring-2 focus:ring-primary/20 transition-all outline-none text-muted-foreground"
+                  />
+                </div>
+              </div>
+            )}
+
+            {isOwner ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-3xl bg-primary/10 border border-primary/20 text-center">
+                  <p className="text-sm font-bold text-primary">
+                    Este serviço é teu
+                  </p>
+                  <p className="text-[10px] uppercase tracking-widest opacity-60 mt-1">
+                    Não podes reservar o próprio serviço
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl gap-2 h-12 font-bold border-primary text-primary hover:bg-primary/5"
+                  onClick={() => router.push("/services")}
+                >
+                  Gerir Serviços
+                </Button>
+              </div>
+            ) : (
               <Button
-                className="rounded-xl gap-2 h-10 px-6 font-bold shadow-glow hover:shadow-glow-lg transition-all"
+                className="w-full rounded-xl gap-2 h-12 font-bold shadow-glow hover:shadow-glow-lg transition-all"
                 onClick={handleBooking}
                 disabled={isPending}
               >
@@ -189,14 +249,16 @@ export default function ServiceDetailPage() {
                 ) : (
                   <Plus className="w-5 h-5" />
                 )}
-                {isPending ? "Reservando..." : "Reservar"}
+                {isPending ? "Reservando..." : "Confirmar Reserva"}
               </Button>
             )}
 
-            <p className="text-xs text-center text-muted-foreground mt-6 leading-relaxed">
-              Ao reservar, os fundos ficarão retidos com segurança até a
-              conclusão do serviço.
-            </p>
+            {!isOwner && (
+              <p className="text-xs text-center text-muted-foreground mt-6 leading-relaxed">
+                Ao reservar, os fundos ficarão retidos com segurança até a
+                conclusão do serviço.
+              </p>
+            )}
 
             <div className="mt-8 pt-8 border-t border-border">
               <div className="flex items-center gap-4">

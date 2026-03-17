@@ -18,7 +18,7 @@ export class PrismaBookingRepository extends BookingRepository {
   async findById(id: string): Promise<BookingEntity | null> {
     const data = await this.prisma.booking.findUnique({
       where: { id },
-      include: { service: { include: { provider: true } } },
+      include: { service: { include: { provider: true } }, client: true },
     });
     if (!data) return null;
     return this.mapToEntity(data);
@@ -28,7 +28,7 @@ export class PrismaBookingRepository extends BookingRepository {
     const data = await this.prisma.booking.findMany({
       where: { clientId },
       orderBy: { createdAt: "desc" },
-      include: { service: { include: { provider: true } } },
+      include: { service: { include: { provider: true } }, client: true },
     });
     return data.map((item) => this.mapToEntity(item));
   }
@@ -37,7 +37,7 @@ export class PrismaBookingRepository extends BookingRepository {
     const data = await this.prisma.booking.findMany({
       where: { service: { providerId } },
       orderBy: { createdAt: "desc" },
-      include: { service: { include: { provider: true } } },
+      include: { service: { include: { provider: true } }, client: true },
     });
     return data.map((item) => this.mapToEntity(item));
   }
@@ -46,7 +46,7 @@ export class PrismaBookingRepository extends BookingRepository {
     const data = await this.prisma.booking.findMany({
       where: { serviceId },
       orderBy: { createdAt: "desc" },
-      include: { service: { include: { provider: true } } },
+      include: { service: { include: { provider: true } }, client: true },
     });
     return data.map((item) => this.mapToEntity(item));
   }
@@ -55,7 +55,7 @@ export class PrismaBookingRepository extends BookingRepository {
     const data = await this.prisma.booking.findMany({
       where: { status: status as any },
       orderBy: { createdAt: "desc" },
-      include: { service: { include: { provider: true } } },
+      include: { service: { include: { provider: true } }, client: true },
     });
     return data.map((item) => this.mapToEntity(item));
   }

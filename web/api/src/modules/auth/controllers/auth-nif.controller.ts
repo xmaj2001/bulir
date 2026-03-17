@@ -17,6 +17,7 @@ import { setRefreshCookie } from "../helpers/cookie.helper";
 import { ConfigService } from "@nestjs/config";
 import { NifSignUpInput } from "../inputs/nif-sign-up.input";
 import { NifSignInInput } from "../inputs/nif-sign-in.input";
+import { Throttle } from "@nestjs/throttler";
 
 @ApiTags("Auth — NIF")
 @Public()
@@ -31,6 +32,7 @@ export class AuthNifController {
   ) {}
 
   @Post("sign-up/nif")
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 req/min
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Registar com nif + password" })
   @ApiResponse({ status: 201, description: "Conta criada" })
@@ -41,6 +43,7 @@ export class AuthNifController {
   }
 
   @Post("sign-in/nif")
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 req/min
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login com nif + password" })
   @ApiResponse({ status: 200, description: "Login bem-sucedido" })

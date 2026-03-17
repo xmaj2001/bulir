@@ -121,7 +121,6 @@ export class UserEntity extends BaseEntity {
       avatarUrl: this.avatarUrl,
       role: this.role,
       lastLoginAt: this.lastLoginAt,
-      balance: this.balance,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

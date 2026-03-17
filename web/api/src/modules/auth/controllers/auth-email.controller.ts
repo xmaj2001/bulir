@@ -17,6 +17,7 @@ import { EmailSignInInput } from "../inputs/email-sign-in.input";
 import { Public } from "@common/decorators/public.decorator";
 import { setRefreshCookie } from "../helpers/cookie.helper";
 import { ConfigService } from "@nestjs/config";
+import { Throttle } from "@nestjs/throttler";
 
 @ApiTags("Auth — Email")
 @Public()
@@ -31,6 +32,7 @@ export class AuthEmailController {
   ) {}
 
   @Post("sign-up/email")
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 req/min
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Registar com email + password" })
   @ApiResponse({ status: 201, description: "Conta criada" })
@@ -41,6 +43,7 @@ export class AuthEmailController {
   }
 
   @Post("sign-in/email")
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 req/min
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login com email + password" })
   @ApiResponse({ status: 200, description: "Login bem-sucedido" })

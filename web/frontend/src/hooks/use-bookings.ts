@@ -40,7 +40,7 @@ export function useCreateBooking() {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings", "mine", "auth"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings", "mine"] });
     },
   });
 }

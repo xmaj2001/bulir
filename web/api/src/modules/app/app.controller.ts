@@ -1,6 +1,7 @@
 import { Get, Controller, HttpCode, HttpStatus } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { Public } from "@common/decorators/public.decorator";
+import { SkipThrottle } from "@nestjs/throttler";
 
 @Controller("")
 @Public()
@@ -13,6 +14,7 @@ export class AppController {
   }
 
   @Get("health")
+  @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   health(): { status: string } {
     return { status: "OK" };

@@ -18,22 +18,4 @@ export class UserGateway {
   @WebSocketServer()
   private server: Server;
   constructor(private readonly userRepo: UserRepository) {}
-
-  deposit(payload: DepositEvent) {
-    this.logger.log(`Broadcast user:deposit → ${payload.userId}`);
-    this.server.emit("user:deposit", payload);
-  }
-
-  async bookingCreated(payload: { clientId: string; balanceAfter: number }) {
-    this.logger.log(`Broadcast user:bookingCreated → ${payload.clientId}`);
-    const user = await this.userRepo.findById(payload.clientId);
-    if (!user) {
-      this.logger.warn(`User not found: ${payload.clientId}`);
-      return;
-    }
-    this.server.emit("user:bookingCreated", {
-      userId: payload.clientId,
-      balanceAfter: user.getbalance(), // TODO: Mudar o nome do método para getBalance()
-    });
-  }
 }

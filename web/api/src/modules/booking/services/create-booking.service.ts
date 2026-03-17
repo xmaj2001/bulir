@@ -51,6 +51,7 @@ export class CreateBookingService {
       serviceId: service.id,
       totalPrice: service.price,
       notes: input.notes,
+      scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : undefined,
     });
 
     await this.bookingRepo.save(booking);
